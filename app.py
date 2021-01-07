@@ -46,5 +46,13 @@ def login():
         return result
 
 
+@app.route('/api/auth/logout', methods=['GET','POST'])
+def logout():
+    flask.session.clear()
+    code = 200
+    result = "Logout successfully"
+    return flask.jsonify(code,result)
+
+
 if __name__ == '__main__':
     app.run()
