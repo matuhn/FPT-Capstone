@@ -23,8 +23,7 @@ def register():
         username = flask.request.form.get("username")
         email = flask.request.form.get("email")
         password = flask.request.form.get("password")
-        confirm_password = flask.request.form.get("confirm_password")
-        result = function.register(username, email, password, confirm_password)
+        result = function.register(username, email, password)
         result = flask.jsonify(result)
         return result
 

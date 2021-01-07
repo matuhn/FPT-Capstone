@@ -93,17 +93,14 @@ def select_user(username_or_email):
         print("Select never bug")
 
 
-def register(username, email, password, confirm_password):
+def register(username, email, password):
     try:
         if (parameter_policy(username, config.USERNAME_POLICY) == "Match"):
             if (parameter_policy(email, config.EMAIL_POLICY)) == "Match":
                 if (check_username_duplicate(username) != "Duplicate"):
                     if (check_email_duplicate(email) != "Duplicate"):
-                        if (hash_password(password) == hash_password(confirm_password)):
-                            insert_user(username, email, hash_password(password))
-                            result = {"code": 200, "result": "Created user"}
-                        else:
-                            result = {"code": 500, "result": "2 password not the same"}
+                        insert_user(username, email, hash_password(password))
+                        result = {"code": 200, "result": "Created user"}
                     else:
                         result = {"code": 500, "result": "Email Duplicate"}
                 else:
