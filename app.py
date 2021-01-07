@@ -5,7 +5,7 @@ from flask_cors import CORS
 
 app = flask.Flask(__name__)
 app.secret_key = config.SECRETKEY
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 @app.route('/api/install')
 def index():
