@@ -40,7 +40,6 @@ def login():
         for key, value in result.items():
             if ("successfully" in str(value)):
                 flask.session['USERNAME'] = username_or_email
-                print(flask.session['USERNAME'])
         result = flask.jsonify(result)
 
         return result
@@ -49,9 +48,18 @@ def login():
 @app.route('/api/auth/logout', methods=['GET','POST'])
 def logout():
     flask.session.clear()
-    code = 200
-    result = "Logout successfully"
-    return flask.jsonify(code,result)
+    return flask.jsonify({"code":200,"result":"Logout successfully"})
+
+
+@app.route('/api/auth/getUserInfo', methods=['GET','POST'])
+def get_user_info():
+    try:
+        username = flask.session['USERNAME']
+        id = function.select_user(username)[0]
+        email = function.select_user(username)[2]
+        return flask.jsonify({"code":200,"result":{"id":id, "username":username, "email":email}})
+    except:
+        return flask.jsonify({"code":500,"result":None})
 
 
 if __name__ == '__main__':

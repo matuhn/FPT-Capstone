@@ -82,12 +82,12 @@ def insert_user(username, email, password):
 
 def select_user(username_or_email):
     try:
-        query = "SELECT * FROM Users WHERE EMAIL = :username_or_email OR USERNAME = :username_or_email"
+        query = "SELECT ID,USERNAME,EMAIL,PASSWORD FROM Users WHERE EMAIL = :username_or_email OR USERNAME = :username_or_email"
         conn = get_connection()
         c = conn.cursor().execute(query, {'username_or_email': username_or_email})
         for row in c:
             if (row is not None):
-                return row[3]
+                return row
         return "Not existed"
     except:
         print("Select never bug")
@@ -116,7 +116,7 @@ def register(username, email, password):
 
 def login(username_or_email, password):
     try:
-        result = select_user(username_or_email)
+        result = select_user(username_or_email)[3]
         if (hash_password(password) == result):
             result = {"code": 200, "result": "Login successfully"}
         else:
