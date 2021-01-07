@@ -20,38 +20,50 @@ def get_connection():
 
 
 def init_database():
-    if (check_file_exist(config.DATABASE)):
-        query = "CREATE TABLE IF NOT EXISTS Users (ID INTEGER PRIMARY KEY AUTOINCREMENT, USERNAME TEXT NOT NULL UNIQUE, EMAIL TEXT NOT NULL UNIQUE, PASSWORD TEXT NOT NULL UNIQUE)"
-        conn = get_connection()
-        conn.cursor().execute(query)
-        conn.commit()
+    try:
+        if (check_file_exist(config.DATABASE)):
+            query = "CREATE TABLE IF NOT EXISTS Users (ID INTEGER PRIMARY KEY AUTOINCREMENT, USERNAME TEXT NOT NULL UNIQUE, EMAIL TEXT NOT NULL UNIQUE, PASSWORD TEXT NOT NULL UNIQUE)"
+            conn = get_connection()
+            conn.cursor().execute(query)
+            conn.commit()
+    except:
+        print("Bug when init db")
 
 
 def check_username_duplicate(username):
-    query = "SELECT USERNAME FROM Users WHERE USERNAME = :username"
-    conn = get_connection()
-    c = conn.cursor().execute(query, {'username': username})
-    for row in c:
-        if (row is not None):
-            return "Duplicate"
-    return "None"
+    try:
+        query = "SELECT USERNAME FROM Users WHERE USERNAME = :username"
+        conn = get_connection()
+        c = conn.cursor().execute(query, {'username': username})
+        for row in c:
+            if (row is not None):
+                return "Duplicate"
+        return "None"
+    except:
+        print("Bug when check_username_dup")
 
 
 def check_email_duplicate(email):
-    query = "SELECT EMAIL FROM Users WHERE EMAIL = :email"
-    conn = get_connection()
-    c = conn.cursor().execute(query, {'email': email})
-    for row in c:
-        if (row is not None):
-            return "Duplicate"
-    return "None"
+    try:
+        query = "SELECT EMAIL FROM Users WHERE EMAIL = :email"
+        conn = get_connection()
+        c = conn.cursor().execute(query, {'email': email})
+        for row in c:
+            if (row is not None):
+                return "Duplicate"
+        return "None"
+    except:
+        print("Bug when check email")
 
 
 def parameter_policy(parameter, regex):
-    if (re.match(regex,parameter) is not None):
-        return "Match"
-    else:
-        return "Not match"
+    try:
+        if (re.match(regex,parameter) is not None):
+            return "Match"
+        else:
+            return "Not match"
+    except:
+        print("Bug in policy regex")
 
 
 def hash_password(password):
@@ -59,47 +71,60 @@ def hash_password(password):
 
 
 def insert_user(username, email, password):
-    query = "INSERT INTO Users(USERNAME, EMAIL, PASSWORD) VALUES (:username, :email, :password)"
-    conn = get_connection()
-    conn.cursor().execute(query, {'username': username, 'email': email, 'password': password})
-    conn.commit()
+    try:
+        query = "INSERT INTO Users(USERNAME, EMAIL, PASSWORD) VALUES (:username, :email, :password)"
+        conn = get_connection()
+        conn.cursor().execute(query, {'username': username, 'email': email, 'password': password})
+        conn.commit()
+    except:
+        print("insert buggy")
 
 
 def select_user(username_or_email):
-    query = "SELECT * FROM Users WHERE EMAIL = :username_or_email OR USERNAME = :username_or_email"
-    conn = get_connection()
-    c = conn.cursor().execute(query, {'username_or_email': username_or_email})
-    for row in c:
-        if (row is not None):
-            return row[3]
-    return "Not existed"
+    try:
+        query = "SELECT * FROM Users WHERE EMAIL = :username_or_email OR USERNAME = :username_or_email"
+        conn = get_connection()
+        c = conn.cursor().execute(query, {'username_or_email': username_or_email})
+        for row in c:
+            if (row is not None):
+                return row[3]
+        return "Not existed"
+    except:
+        print("Select never bug")
 
 
 def register(username, email, password, confirm_password):
-    if (parameter_policy(username, config.USERNAME_POLICY) == "Match"):
-        if (parameter_policy(email, config.EMAIL_POLICY)) == "Match":
-            if (check_username_duplicate(username) != "Duplicate"):
-                if (check_email_duplicate(email) != "Duplicate"):
-                    if (hash_password(password) == hash_password(confirm_password)):
-                        insert_user(username, email, hash_password(password))
-                        result = {"code": 200, "result": "Created user"}
+    try:
+        if (parameter_policy(username, config.USERNAME_POLICY) == "Match"):
+            if (parameter_policy(email, config.EMAIL_POLICY)) == "Match":
+                if (check_username_duplicate(username) != "Duplicate"):
+                    if (check_email_duplicate(email) != "Duplicate"):
+                        if (hash_password(password) == hash_password(confirm_password)):
+                            insert_user(username, email, hash_password(password))
+                            result = {"code": 200, "result": "Created user"}
+                        else:
+                            result = {"code": 500, "result": "2 password not the same"}
                     else:
-                        result = {"code": 500, "result": "2 password not the same"}
+                        result = {"code": 500, "result": "Email Duplicate"}
                 else:
-                    result = {"code": 500, "result": "Email Duplicate"}
+                    result = {"code": 500, "result": "Username Duplicate"}
             else:
-                result = {"code": 500, "result": "Username Duplicate"}
+                result = {"code": 500, "result": "Invalidate Email"}
         else:
-            result = {"code": 500, "result": "Invalidate Email"}
-    else:
-        result = {"code": 500, "result": "Invalidate Username"}
+            result = {"code": 500, "result": "Invalidate Username"}
+    except:
+        result = {"code": 500, "result": "Server Error"}
     return result
 
 
 def login(username_or_email, password):
-    result = select_user(username_or_email)
-    if (hash_password(password) == result):
-        result = {"code": 200, "result": "Login successfully"}
-    else:
-        result = {"code": 500, "result": "Check your account and login again"}
+    try:
+        result = select_user(username_or_email)
+        if (hash_password(password) == result):
+            result = {"code": 200, "result": "Login successfully"}
+        else:
+            result = {"code": 500, "result": "Check your account and login again"}
+        return result
+    except:
+        result = {"code": 500, "result": "Server Error"}
     return result
