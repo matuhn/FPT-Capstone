@@ -5,8 +5,7 @@ from flask_cors import CORS
 
 app = flask.Flask(__name__)
 app.secret_key = config.SECRETKEY
-app.config['CORS_HEADERS'] = 'Content-Type'
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app)
 
 @app.route('/api/install')
 def index():
@@ -15,29 +14,29 @@ def index():
     return text
 
 
-@app.route('/api/auth/register')
+@app.route('/api/auth/register', methods=['GET', 'POST'])
 def register():
     if flask.request.method == "GET":
         text = "POST username, email, password, confirm_password"
         return text
     elif flask.request.method == "POST":
-        username = flask.request.form("username")
-        email = flask.request.form("email")
-        password = flask.request.form("password")
-        confirm_password = flask.request.form("confirm_password")
+        username = flask.request.form.get("username")
+        email = flask.request.form.get("email")
+        password = flask.request.form.get("password")
+        confirm_password = flask.request.form.get("confirm_password")
         result = function.register(username, email, password, confirm_password)
         result = flask.jsonify(result)
         return result
 
 
-@app.route('/api/auth/login')
+@app.route('/api/auth/login', methods=['GET', 'POST'])
 def login():
     if flask.request.method == "GET":
         text = "POST username, password"
         return text
     elif flask.request.method == "POST":
-        username_or_email = flask.request.form("username_or_email")
-        password = flask.request.form("password")
+        username_or_email = flask.request.form.get("username_or_email")
+        password = flask.request.form.get("password")
         result = function.login(username_or_email, password)
         for key, value in result.items():
             if ("successfully" in str(value)):
