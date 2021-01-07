@@ -39,7 +39,7 @@ def login():
         result = function.login(username_or_email, password)
         for key, value in result.items():
             if ("successfully" in str(value)):
-                flask.session['USERNAME'] = username_or_email
+                flask.session['USERNAME'] = function.select_user(username_or_email)[1]
         result = flask.jsonify(result)
 
         return result
