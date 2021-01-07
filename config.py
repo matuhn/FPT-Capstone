@@ -1,0 +1,5 @@
+DATABASE = "./database.db"
+SECRETKEY = "IA1303"
+USERNAME_POLICY = "^[a-zA-Z0-9]{4,18}$"
+PASSWORD_POLICY = "^[a-zA-Z0-9]{8,50}$"
+EMAIL_POLICY = "^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w+$"
