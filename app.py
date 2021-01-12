@@ -4,6 +4,7 @@ import config
 import user
 from flask_cors import CORS
 
+
 app = flask.Flask(__name__)
 app.secret_key = config.SECRETKEY
 CORS(app)
@@ -19,13 +20,14 @@ def index():
 @app.route('/api/auth/register', methods=['GET', 'POST'])
 def register():
     if flask.request.method == "GET":
-        text = "POST username, email, password"
+        text = "POST username, email, fullname, password"
         return text
     elif flask.request.method == "POST":
         username = flask.request.form.get("username")
         email = flask.request.form.get("email")
+        fullname = flask.request.form.get("fullname")
         password = flask.request.form.get("password")
-        result = user.register(username, email, password)
+        result = user.register(username, email, fullname, password)
         result = flask.jsonify(result)
         return result
 
@@ -57,11 +59,29 @@ def logout():
 def get_user_info():
     try:
         username = flask.session['USERNAME']
-        id = user.select_user(username)[0]
-        email = user.select_user(username)[2]
-        return flask.jsonify({"code": 200, "result": {"id": id, "username": username, "email": email}})
+        row = user.select_user(username)
+        id = row[0]
+        email = row[2]
+        fullname = row[4]
+        return flask.jsonify({"code": 200, "result": {"id": id, "username": username, "fullname": fullname, "email": email}})
     except:
         return flask.jsonify({"code": 500, "result": None})
+
+
+@app.route('/api/editUserInfo', methods=['GET', 'POST'])
+def editUserInfo():
+    if flask.request.method == "GET":
+        text = "POST email, fullname, password"
+        return text
+    elif flask.request.method == "POST":
+        username = flask.session['USERNAME']
+        email = flask.request.form.get("email")
+        fullname = flask.request.form.get("fullname")
+        password = flask.request.form.get("password")
+        result = user.edit(username, email, fullname, password)
+        result = flask.jsonify(result)
+
+        return result
 
 
 if __name__ == '__main__':

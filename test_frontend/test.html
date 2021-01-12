@@ -1,0 +1,38 @@
+Install DB
+<form method="GET" action="http://127.0.0.1:5000/api/install">
+    <input type="submit"/>
+</form>
+
+Register
+<form method="POST" action="http://127.0.0.1:5000/api/auth/register">
+    <input type="text" name="username" />
+    <input type="text" name="email" />
+    <input type="text" name="fullname" />
+    <input type="text" name="password" />
+    <input type="submit"/>
+</form>
+
+Login
+<form method="POST" action="http://127.0.0.1:5000/api/auth/login">
+    <input type="text" name="username_or_email" />
+    <input type="text" name="password" />
+    <input type="submit"/>
+</form>
+
+Logout
+<form method="GET" action="http://127.0.0.1:5000/api/auth/logout">
+    <input type="submit"/>
+</form>
+
+getUserInfo
+<form method="GET" action="http://127.0.0.1:5000/api/auth/getUserInfo">
+    <input type="submit"/>
+</form>
+
+editUserInfo
+<form method="POST" action="http://127.0.0.1:5000/api/editUserInfo">
+    <input type="text" name="email" />
+    <input type="text" name="fullname" />
+    <input type="text" name="password" />
+    <input type="submit"/>
+</form>

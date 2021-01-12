@@ -22,12 +22,12 @@ def get_connection():
 def init_database():
     try:
         if (check_file_exist(config.DATABASE)):
-            query = "CREATE TABLE IF NOT EXISTS Users (ID INTEGER PRIMARY KEY AUTOINCREMENT, USERNAME TEXT NOT NULL UNIQUE, EMAIL TEXT NOT NULL UNIQUE, PASSWORD TEXT NOT NULL)"
+            query = "CREATE TABLE IF NOT EXISTS Users (ID INTEGER PRIMARY KEY AUTOINCREMENT, USERNAME TEXT NOT NULL UNIQUE, EMAIL TEXT NOT NULL UNIQUE, FULLNAME TEXT NOT NULL UNIQUE, PASSWORD TEXT NOT NULL)"
             conn = get_connection()
             conn.cursor().execute(query)
             conn.commit()
-    except:
-        print("Bug when init db")
+    except Exception as ex:
+        print(ex)
 
 
 def parameter_policy(parameter, regex):
@@ -36,8 +36,8 @@ def parameter_policy(parameter, regex):
             return "Match"
         else:
             return "Not match"
-    except:
-        print("Bug in policy regex")
+    except Exception as ex:
+        print(ex)
 
 
 def hash_password(password):
