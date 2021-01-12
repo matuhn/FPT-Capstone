@@ -14,6 +14,8 @@ CORS(app)
 def index():
     function.init_database()
     text = "Init Database"
+    function.init_directory(config.UPLOAD_DIR)
+    text += "\nInit Upload Directory"
     return text
 
 

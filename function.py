@@ -2,11 +2,12 @@ import sqlite3
 import config
 import re
 import hashlib
+from pathlib import Path
 
 
-def check_file_exist(File):
+def check_file_exist(file):
     try:
-        f = open(File)
+        f = open(file)
     except IOError:
         open(config.DATABASE, 'a').close()
         return 1
@@ -19,9 +20,13 @@ def get_connection():
     return connection
 
 
+def init_directory(name):
+    Path(name).mkdir(parents=True, exist_ok=True)
+
+
 def init_database():
     try:
-        if (check_file_exist(config.DATABASE)):
+        if check_file_exist(config.DATABASE):
             query = "CREATE TABLE IF NOT EXISTS Users (ID INTEGER PRIMARY KEY AUTOINCREMENT, USERNAME TEXT NOT NULL UNIQUE, EMAIL TEXT NOT NULL UNIQUE, FULLNAME TEXT NOT NULL UNIQUE, PASSWORD TEXT NOT NULL)"
             conn = get_connection()
             conn.cursor().execute(query)

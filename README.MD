@@ -7,7 +7,7 @@ services based on ECC
 
 - [x] Login modules: this function allows users log into the web application. 
 
-- [ ] Account management: this module allows users to change password, to set security
+- [x] Account management: this module allows users to change password, to set security
 policy, and to change personal information…
 
 - [ ] Document uploading module: this module allows users to upload documents into the
