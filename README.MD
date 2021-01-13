@@ -10,7 +10,7 @@ services based on ECC
 - [x] Account management: this module allows users to change password, to set security
 policy, and to change personal information…
 
-- [ ] Document uploading module: this module allows users to upload documents into the
+- [x] Document uploading module: this module allows users to upload documents into the
 cloud.
 
 - [ ] Document sharing module: this module allows users to share documents to friends,
