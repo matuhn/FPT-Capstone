@@ -3,6 +3,13 @@ import config
 import re
 import hashlib
 from pathlib import Path
+import os
+from uuid import uuid4
+
+
+def make_unique(string):
+    ident = uuid4().__str__()[:8]
+    return f"{ident}-{string}"
 
 
 def check_file_exist(file):
@@ -49,4 +56,13 @@ def hash_password(password):
     return hashlib.md5(password.encode()).hexdigest()
 
 
+def gen_file_name(name, username):
+    parent_dir = os.path.join(config.UPLOAD_DIR, hash_password(username))
+    init_directory(parent_dir)
+    new_name = make_unique(name)
+    directory = hash_password(username)
+    return os.path.join(parent_dir, new_name), directory, new_name
 
+
+def make_file_path(parent_dir):
+    return os.path.join(config.UPLOAD_DIR, parent_dir)

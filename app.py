@@ -3,7 +3,7 @@ import function
 import config
 import user
 from flask_cors import CORS
-
+from werkzeug.utils import secure_filename
 
 app = flask.Flask(__name__)
 app.secret_key = config.SECRETKEY
@@ -71,12 +71,15 @@ def get_user_info():
 
 
 @app.route('/api/editUserInfo', methods=['GET', 'POST'])
-def editUserInfo():
+def edit_user_info():
     if flask.request.method == "GET":
         text = "POST email, fullname, password"
         return text
     elif flask.request.method == "POST":
-        username = flask.session['USERNAME']
+        try:
+            username = flask.session['USERNAME']
+        except KeyError:
+            return flask.jsonify({"code": 500, "result": "Please login before doing this"})
         email = flask.request.form.get("email")
         fullname = flask.request.form.get("fullname")
         password = flask.request.form.get("password")
@@ -84,6 +87,29 @@ def editUserInfo():
         result = flask.jsonify(result)
 
         return result
+
+
+@app.route('/api/uploadFile', methods=['GET', 'POST'])
+def upload_file():
+    if flask.request.method == 'POST':
+        if 'file' not in flask.request.files:
+            return flask.jsonify({"code": 500, "result": "No file part"})
+        file = flask.request.files['file']
+        if file.filename == '':
+            return flask.jsonify({"code": 500, "result": "No selected file"})
+        if file:
+            filename = secure_filename(file.filename)
+            try:
+                filename, directory, new_name = function.gen_file_name(filename, flask.session['USERNAME'])
+            except KeyError:
+                return flask.jsonify({"code": 500, "result": "Please login before doing this"})
+            file.save(filename)
+            return flask.jsonify({"code": 200, "result": flask.url_for('download_file', parent_dir=directory, name=new_name)})
+
+
+@app.route('/api/downloadFile/<parent_dir>/<name>')
+def download_file(parent_dir, name):
+    return flask.send_from_directory(function.make_file_path(parent_dir), name)
 
 
 if __name__ == '__main__':
