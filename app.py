@@ -7,7 +7,7 @@ from werkzeug.utils import secure_filename
 
 app = flask.Flask(__name__)
 app.secret_key = config.SECRETKEY
-CORS(app)
+CORS(app, supports_credentials=True)
 
 
 @app.route('/api/install')
