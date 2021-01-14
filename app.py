@@ -5,6 +5,7 @@ import user
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 
+
 app = flask.Flask(__name__)
 app.secret_key = config.SECRETKEY
 CORS(app, supports_credentials=True)
@@ -110,6 +111,15 @@ def upload_file():
 @app.route('/api/downloadFile/<parent_dir>/<name>')
 def download_file(parent_dir, name):
     return flask.send_from_directory(function.make_file_path(parent_dir), name)
+
+
+@app.route('/api/listFile')
+def list_file():
+    try:
+        files = function.list_file_in_directory(flask.session['USERNAME'])
+        return flask.jsonify({"code": 200, "result": {"fileList": files}})
+    except KeyError:
+        return flask.jsonify({"code": 500, "result": "Please login before doing this"})
 
 
 if __name__ == '__main__':

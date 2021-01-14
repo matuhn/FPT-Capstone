@@ -5,6 +5,7 @@ import hashlib
 from pathlib import Path
 import os
 from uuid import uuid4
+import json
 
 
 def make_unique(string):
@@ -66,3 +67,9 @@ def gen_file_name(name, username):
 
 def make_file_path(parent_dir):
     return os.path.join(config.UPLOAD_DIR, parent_dir)
+
+
+def list_file_in_directory(username):
+    username = hash_password(username)
+    path = make_file_path(username)
+    return json.dumps(os.listdir(path))
