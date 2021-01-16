@@ -83,3 +83,14 @@ def list_file_in_directory(username):
 def gen_link_list(username, file_name):
     path = "/api/downloadFile/" + username + "/" + file_name
     return path
+
+
+def delete_file(parent_dir, file_name):
+    path = os.path.join(make_file_path(parent_dir), file_name)
+    os.remove(path)
+
+
+def rename_file(parent_dir, old_name, new_name):
+    old_path = os.path.join(make_file_path(parent_dir), old_name)
+    new_path = os.path.join(make_file_path(parent_dir), new_name)
+    os.rename(old_path, new_path)

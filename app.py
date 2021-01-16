@@ -108,24 +108,51 @@ def upload_file():
             return flask.jsonify({"code": 200, "result": flask.url_for('download_file', parent_dir=directory, name=new_name)})
 
 
-@app.route('/api/downloadFile/<parent_dir>/<name>')
+@app.route('/api/downloadFile/<parent_dir>/<name>', methods=['GET', 'POST'])
 def download_file(parent_dir, name):
     try:
+        parent_dir = secure_filename(parent_dir)
+        name = secure_filename(name)
         if function.hash_password(flask.session['USERNAME']) == parent_dir:
             return flask.send_from_directory(function.make_file_path(parent_dir), name)
         else:
-            print(flask.session['USERNAME'], parent_dir)
             return flask.jsonify({"code": 500, "result": "No Permission"})
     except KeyError:
         return flask.jsonify({"code": 500, "result": "Please login before doing this"})
 
 
-@app.route('/api/listFile')
+@app.route('/api/listFile', methods=['GET', 'POST'])
 def list_file():
     try:
         files = function.list_file_in_directory(flask.session['USERNAME'])
         return flask.jsonify({"code": 200, "result": {"fileList": files}})
     except KeyError:
+        return flask.jsonify({"code": 500, "result": "Please login before doing this"})
+
+
+@app.route('/api/editFile/<parent_dir>/<name>', methods=['GET', 'POST'])
+def edit_file(parent_dir, name):
+    try:
+        parent_dir = secure_filename(parent_dir)
+        name = secure_filename(name)
+        if function.hash_password(flask.session['USERNAME']) == parent_dir:
+            new_name = flask.request.form.get("new_name")
+            delete = flask.request.form.get("delete")
+            if delete is not None:
+                try:
+                    function.delete_file(parent_dir, name)
+                except:
+                    return flask.jsonify({"code": 404, "result": "Not Found"})
+                return flask.jsonify({"code": 200, "result": "Deleted"})
+            if new_name is not None:
+                function.rename_file(parent_dir, name, new_name)
+                return flask.jsonify({"code": 200, "result": "Renamed"})
+            return flask.jsonify({"code": 200, "result": "Please provide one action"})
+        else:
+            print(flask.session['USERNAME'], parent_dir)
+            return flask.jsonify({"code": 500, "result": "No Permission"})
+    except Exception as e:
+        print(e)
         return flask.jsonify({"code": 500, "result": "Please login before doing this"})
 
 

@@ -43,3 +43,20 @@ uploadFile
       <input type="submit" />
 </form>
 
+listFile
+<form method="GET" action="http://127.0.0.1:5000/api/listFile">
+    <input type="submit"/>
+</form>
+
+
+deleteFile
+<form method="POST" action="http://127.0.0.1:5000/api/editFile/3408b253f823adf5d4e659e20b78a174/c07bf15e-desktop.ini">
+    <input type="text" name="delete" />
+    <input type="submit"/>
+</form>
+
+renameFile
+<form method="POST" action="http://127.0.0.1:5000/api/editFile/3408b253f823adf5d4e659e20b78a174/3d438ef5-desktop.ini">
+    <input type="text" name="new_name" />
+    <input type="submit"/>
+</form>
