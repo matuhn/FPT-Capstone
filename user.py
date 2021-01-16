@@ -102,8 +102,11 @@ def edit(username, email, fullname, password):
     try:
         if (function.parameter_policy(email, config.EMAIL_POLICY)) == "Match":
             if check_email_duplicate(email, username) != "Duplicate":
-                update_user(username, email, fullname, function.hash_password(password))
-                result = {"code": 200, "result": "Updated user"}
+                if password != "":
+                    update_user(username, email, fullname, function.hash_password(password))
+                    result = {"code": 200, "result": "Updated user"}
+                else:
+                    result = {"code": 500, "result": "Password is not null"}
             else:
                 result = {"code": 500, "result": "Email Duplicate"}
         else:

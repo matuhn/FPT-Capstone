@@ -110,7 +110,14 @@ def upload_file():
 
 @app.route('/api/downloadFile/<parent_dir>/<name>')
 def download_file(parent_dir, name):
-    return flask.send_from_directory(function.make_file_path(parent_dir), name)
+    try:
+        if function.hash_password(flask.session['USERNAME']) == parent_dir:
+            return flask.send_from_directory(function.make_file_path(parent_dir), name)
+        else:
+            print(flask.session['USERNAME'], parent_dir)
+            return flask.jsonify({"code": 500, "result": "No Permission"})
+    except KeyError:
+        return flask.jsonify({"code": 500, "result": "Please login before doing this"})
 
 
 @app.route('/api/listFile')

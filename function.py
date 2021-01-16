@@ -72,4 +72,14 @@ def make_file_path(parent_dir):
 def list_file_in_directory(username):
     username = hash_password(username)
     path = make_file_path(username)
-    return json.dumps(os.listdir(path))
+    files = os.listdir(path)
+    paths = []
+    for f in files:
+        f = {"file_name": f, "download": gen_link_list(username, f), "modified": os.path.getmtime(os.path.join(path, f))}
+        paths.append(f)
+    return json.dumps(paths)
+
+
+def gen_link_list(username, file_name):
+    path = "/api/downloadFile/" + username + "/" + file_name
+    return path
