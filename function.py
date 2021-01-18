@@ -81,7 +81,7 @@ def list_file_in_directory(username):
 
 
 def gen_link_list(username, file_name):
-    path = "/api/downloadFile/" + username + "/" + file_name
+    path = username + "/" + file_name
     return path
 
 
