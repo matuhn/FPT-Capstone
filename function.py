@@ -91,6 +91,7 @@ def delete_file(parent_dir, file_name):
 
 
 def rename_file(parent_dir, old_name, new_name):
+    new_name = make_unique(new_name)
     old_path = os.path.join(make_file_path(parent_dir), old_name)
     new_path = os.path.join(make_file_path(parent_dir), new_name)
     os.rename(old_path, new_path)
