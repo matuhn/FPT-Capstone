@@ -15,7 +15,7 @@ def make_unique(string):
 
 def check_file_exist(file):
     try:
-        f = open(file)
+        open(file)
     except IOError:
         open(config.DATABASE, 'a').close()
         return 1
@@ -35,7 +35,10 @@ def init_directory(name):
 def init_database():
     try:
         if check_file_exist(config.DATABASE):
-            query = "CREATE TABLE IF NOT EXISTS Users (ID INTEGER PRIMARY KEY AUTOINCREMENT, USERNAME TEXT NOT NULL UNIQUE, EMAIL TEXT NOT NULL UNIQUE, FULLNAME TEXT NOT NULL UNIQUE, PASSWORD TEXT NOT NULL)"
+            query = "CREATE TABLE IF NOT EXISTS Users " \
+                    "(ID INTEGER PRIMARY KEY AUTOINCREMENT, " \
+                    "USERNAME TEXT NOT NULL UNIQUE, EMAIL TEXT NOT NULL UNIQUE, " \
+                    "FULLNAME TEXT NOT NULL UNIQUE, PASSWORD TEXT NOT NULL)"
             conn = get_connection()
             conn.cursor().execute(query)
             conn.commit()
@@ -75,13 +78,14 @@ def list_file_in_directory(username):
     files = os.listdir(path)
     paths = []
     for f in files:
-        f = {"file_name": f, "download": gen_link_list(username, f), "modified": os.path.getmtime(os.path.join(path, f))}
+        f = {"file_name": f, "download": gen_link_list(username, f),
+             "modified": os.path.getmtime(os.path.join(path, f))}
         paths.append(f)
     return json.dumps(paths)
 
 
 def gen_link_list(username, file_name):
-    path = username + "/" + file_name
+    path = "/api/downloadFile/" + username + "/" + file_name
     return path
 
 
@@ -91,7 +95,6 @@ def delete_file(parent_dir, file_name):
 
 
 def rename_file(parent_dir, old_name, new_name):
-    new_name = make_unique(new_name)
     old_path = os.path.join(make_file_path(parent_dir), old_name)
     new_path = os.path.join(make_file_path(parent_dir), new_name)
     os.rename(old_path, new_path)
