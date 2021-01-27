@@ -4,10 +4,11 @@ import config
 import user
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
+import os
 
 
 app = flask.Flask(__name__)
-app.secret_key = config.SECRETKEY
+app.secret_key = config.SECRET_KEY
 CORS(app, supports_credentials=True)
 
 
@@ -63,10 +64,10 @@ def get_user_info():
     try:
         username = flask.session['USERNAME']
         row = user.select_user(username)
-        id = row[0]
+        _id = row[0]
         email = row[2]
         fullname = row[4]
-        return flask.jsonify({"code": 200, "result": {"id": id, "username": username, "fullname": fullname, "email": email}})
+        return flask.jsonify({"code": 200, "result": {"id": _id, "username": username, "fullname": fullname, "email": email}})
     except:
         return flask.jsonify({"code": 500, "result": None})
 
@@ -108,43 +109,62 @@ def upload_file():
             return flask.jsonify({"code": 200, "result": flask.url_for('download_file', parent_dir=directory, name=new_name)})
 
 
-@app.route('/api/downloadFile/<parent_dir>/<name>', methods=['GET', 'POST'])
-def download_file(parent_dir, name):
+@app.route('/api/downloadFile', methods=['GET', 'POST'])
+def download_file():
     try:
+        parent_dir = flask.request.form.get("dir")
+        name = flask.request.form.get("file_name")
         parent_dir = secure_filename(parent_dir)
-        name = secure_filename(name)
         if function.hash_password(flask.session['USERNAME']) == parent_dir:
             return flask.send_from_directory(function.make_file_path(parent_dir), name)
         else:
             return flask.jsonify({"code": 500, "result": "No Permission"})
-    except KeyError:
+    except Exception as e:
+        print(e)
         return flask.jsonify({"code": 500, "result": "Please login before doing this"})
 
 
 @app.route('/api/listFile', methods=['GET', 'POST'])
 def list_file():
     try:
-        files = function.list_file_in_directory(flask.session['USERNAME'])
-        return flask.jsonify({"code": 200, "result": {"fileList": files}})
-    except KeyError:
-        return flask.jsonify({"code": 500, "result": "Please login before doing this"})
+        if flask.request.method == 'POST':
+            parent_dir = flask.request.form.get("dir")
+            username = function.hash_password(flask.session['USERNAME'])
+            if parent_dir != "" and parent_dir != "\\" and parent_dir != "/":
+                print("dir "+parent_dir)
+                path = os.path.join(function.make_file_path(username), parent_dir)
+                print(path)
+                files = function.list_file_in_directory(path, username, parent_dir)
+            elif parent_dir == "":
+                print("dir " + parent_dir)
+                path = function.make_file_path(username)
+                print(path)
+                files = function.list_file_in_directory(path, username, parent_dir)
+            # else:
+            #     return flask.jsonify({"code": 500, "result": "Try different path"})
+            return flask.jsonify({"code": 200, "result": {"fileList": files}})
+    except Exception as e:
+        return flask.jsonify({"code": 500, "result": e})
 
 
-@app.route('/api/editFile/<parent_dir>/<name>', methods=['GET', 'POST'])
-def edit_file(parent_dir, name):
+@app.route('/api/editFile', methods=['GET', 'POST'])
+def edit_file():
     try:
+        parent_dir = flask.request.form.get("dir")
+        name = flask.request.form.get("file_name")
         parent_dir = secure_filename(parent_dir)
-        name = secure_filename(name)
         if function.hash_password(flask.session['USERNAME']) == parent_dir:
-            new_name = flask.request.form.get("new_name")
-            delete = flask.request.form.get("delete")
-            if delete is not None:
+            action = flask.request.form.get("action")
+            #delete file
+            if action == "delete":
                 try:
                     function.delete_file(parent_dir, name)
                 except:
                     return flask.jsonify({"code": 404, "result": "Not Found"})
                 return flask.jsonify({"code": 200, "result": "Deleted"})
-            if new_name is not None:
+            #rename file
+            if action == "rename":
+                new_name = flask.request.form.get("new_name")
                 function.rename_file(parent_dir, name, new_name)
                 return flask.jsonify({"code": 200, "result": "Renamed"})
             return flask.jsonify({"code": 200, "result": "Please provide one action"})
@@ -154,6 +174,15 @@ def edit_file(parent_dir, name):
     except Exception as e:
         print(e)
         return flask.jsonify({"code": 500, "result": "Please login before doing this"})
+
+
+@app.route('/api/listUser', methods=['GET', 'POST'])
+def list_user():
+    try:
+        users = user.get_all_user()
+        return flask.jsonify({"code": 200, "result": {"userList": users}})
+    except KeyError:
+        return flask.jsonify({"code": 500, "result": "Something wrong"})
 
 
 if __name__ == '__main__':

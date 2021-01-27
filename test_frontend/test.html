@@ -44,19 +44,40 @@ uploadFile
 </form>
 
 listFile
-<form method="GET" action="http://127.0.0.1:5000/api/listFile">
+<form method="POST" action="http://127.0.0.1:5000/api/listFile">
+    <input type="text" name="dir" />
     <input type="submit"/>
 </form>
 
 
 deleteFile
-<form method="POST" action="http://127.0.0.1:5000/api/editFile/3408b253f823adf5d4e659e20b78a174/c07bf15e-desktop.ini">
-    <input type="text" name="delete" />
+<form method="POST" action="http://127.0.0.1:5000/api/editFile">
+    <input type="text" name="action" value="delete" />
+    <input type="text" name="dir" />
+    <input type="text" name="file_name" />
     <input type="submit"/>
 </form>
 
 renameFile
-<form method="POST" action="http://127.0.0.1:5000/api/editFile/3408b253f823adf5d4e659e20b78a174/3d438ef5-desktop.ini">
+<form method="POST" action="http://127.0.0.1:5000/api/editFile">
+    <input type="text" name="action" value="rename" />
+    <input type="text" name="dir" />
+    <input type="text" name="file_name" />
     <input type="text" name="new_name" />
+    <input type="submit"/>
+</form>
+
+
+
+
+downloadFile
+<form method="POST" action="http://127.0.0.1:5000/api/downloadFile">
+    <input type="text" name="dir" />
+    <input type="text" name="file_name" />
+    <input type="submit"/>
+</form>
+
+listUser
+<form method="GET" action="http://127.0.0.1:5000/api/listUser">
     <input type="submit"/>
 </form>

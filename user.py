@@ -2,6 +2,21 @@ import config
 import function
 
 
+def get_all_user():
+    try:
+        users = []
+        query = "SELECT USERNAME FROM Users"
+        conn = function.get_connection()
+        c = conn.cursor().execute(query)
+        for row in c:
+            if row is not None:
+                users.append(row[0])
+        print(users)
+        return users
+    except Exception as ex:
+        print(ex)
+
+
 def check_username_duplicate(username):
     try:
         query = "SELECT USERNAME FROM Users WHERE USERNAME = :username"
@@ -30,7 +45,8 @@ def check_email_duplicate(email, username):
 
 def insert_user(username, email, fullname, password):
     try:
-        query = "INSERT INTO Users(USERNAME, EMAIL, FULLNAME, PASSWORD) VALUES (:username, :email, :fullname, :password)"
+        query = "INSERT INTO Users(USERNAME, EMAIL, FULLNAME, PASSWORD) " \
+                "VALUES (:username, :email, :fullname, :password)"
         conn = function.get_connection()
         conn.cursor().execute(query, {'username': username, 'email': email, 'fullname': fullname, 'password': password})
         conn.commit()
@@ -40,7 +56,8 @@ def insert_user(username, email, fullname, password):
 
 def select_user(username_or_email):
     try:
-        query = "SELECT ID, USERNAME, EMAIL, PASSWORD, FULLNAME FROM Users WHERE EMAIL = :username_or_email OR USERNAME = :username_or_email"
+        query = "SELECT ID, USERNAME, EMAIL, PASSWORD, FULLNAME FROM Users " \
+                "WHERE EMAIL = :username_or_email OR USERNAME = :username_or_email"
         conn = function.get_connection()
         c = conn.cursor().execute(query, {'username_or_email': username_or_email})
         for row in c:
