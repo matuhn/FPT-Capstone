@@ -94,6 +94,7 @@ def edit_user_info():
 @app.route('/api/uploadFile', methods=['GET', 'POST'])
 def upload_file():
     if flask.request.method == 'POST':
+        parent_dir = flask.request.form.get("dir")
         if 'file' not in flask.request.files:
             return flask.jsonify({"code": 500, "result": "No file part"})
         file = flask.request.files['file']
@@ -102,11 +103,28 @@ def upload_file():
         if file:
             filename = secure_filename(file.filename)
             try:
-                filename, directory, new_name = function.gen_file_name(filename, flask.session['USERNAME'])
+                filename, directory, new_name = function.gen_file_name(filename, flask.session['USERNAME'], parent_dir)
             except KeyError:
                 return flask.jsonify({"code": 500, "result": "Please login before doing this"})
             file.save(filename)
-            return flask.jsonify({"code": 200, "result": flask.url_for('download_file', parent_dir=directory, name=new_name)})
+            return flask.jsonify({"code": 200, "result": "dir=" + directory + "&file_name=" + new_name})
+
+
+@app.route('/api/createDirectory', methods=['GET', 'POST'])
+def create_dir():
+    try:
+        if flask.request.method == 'POST':
+            parent_dir = flask.request.form.get("dir")
+            sub_dir = flask.request.form.get("sub_dir")
+            username = function.hash_password(flask.session['USERNAME'])
+            if parent_dir == "":
+                parent_dir = username
+                function.init_directory(os.path.join(os.path.join(config.UPLOAD_DIR, parent_dir), sub_dir))
+                return flask.jsonify({"code": 200, "result": "Created"})
+            return flask.jsonify({"code": 500, "result": parent_dir})
+    except Exception as e:
+        print(e)
+        return flask.jsonify({"code": 500, "result": "Please login before doing this"})
 
 
 @app.route('/api/downloadFile', methods=['GET', 'POST'])
@@ -129,8 +147,10 @@ def list_file():
     try:
         if flask.request.method == 'POST':
             parent_dir = flask.request.form.get("dir")
-            username = function.hash_password(flask.session['USERNAME'])
-            if parent_dir != "" and parent_dir != "\\" and parent_dir != "/":
+            username = flask.request.form.get("share")
+            if username == "":
+                username = function.hash_password(flask.session['USERNAME'])
+            if parent_dir != "" and not parent_dir.startswith("\\") and not parent_dir.startswith("/"):
                 print("dir "+parent_dir)
                 path = os.path.join(function.make_file_path(username), parent_dir)
                 print(path)
@@ -140,13 +160,14 @@ def list_file():
                 path = function.make_file_path(username)
                 print(path)
                 files = function.list_file_in_directory(path, username, parent_dir)
-            # else:
-            #     return flask.jsonify({"code": 500, "result": "Try different path"})
+            else:
+                return flask.jsonify({"code": 500, "result": "Try different path"})
             return flask.jsonify({"code": 200, "result": {"fileList": files}})
     except Exception as e:
-        return flask.jsonify({"code": 500, "result": e})
-
-
+        print(e)
+        return flask.jsonify({"code": 500, "result": "Internal Error"})
+    
+    
 @app.route('/api/editFile', methods=['GET', 'POST'])
 def edit_file():
     try:

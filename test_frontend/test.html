@@ -40,6 +40,7 @@ editUserInfo
 uploadFile
 <form method="POST" enctype="multipart/form-data" action="http://127.0.0.1:5000/api/uploadFile">
       <input type="file" name="file">
+    <input type="text" name="dir" />
       <input type="submit" />
 </form>
 
@@ -79,5 +80,12 @@ downloadFile
 
 listUser
 <form method="GET" action="http://127.0.0.1:5000/api/listUser">
+    <input type="submit"/>
+</form>
+
+createDirectory
+<form method="POST" action="http://127.0.0.1:5000/api/createDirectory">
+    <input type="text" name="dir" />
+    <input type="text" name="sub_dir" />
     <input type="submit"/>
 </form>

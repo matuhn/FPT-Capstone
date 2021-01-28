@@ -1349,113 +1349,128 @@
       <DataType>TEXT|0s</DataType>
       <NotNull>1</NotNull>
     </column>
-    <index id="496" parent="170" name="sqlite_autoindex_FileShare_1">
+    <column id="496" parent="170" name="SHARE">
+      <Position>4</Position>
+      <DataType>TEXT|0s</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <index id="497" parent="170" name="sqlite_autoindex_FileShare_1">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>PATH</ColNames>
       <ColumnCollations></ColumnCollations>
       <Unique>1</Unique>
     </index>
-    <index id="497" parent="170" name="sqlite_autoindex_FileShare_2">
+    <index id="498" parent="170" name="sqlite_autoindex_FileShare_2">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>DATE</ColNames>
       <ColumnCollations></ColumnCollations>
       <Unique>1</Unique>
     </index>
-    <key id="498" parent="170">
+    <index id="499" parent="170" name="sqlite_autoindex_FileShare_3">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>SHARE</ColNames>
+      <ColumnCollations></ColumnCollations>
+      <Unique>1</Unique>
+    </index>
+    <key id="500" parent="170">
       <ColNames>ID</ColNames>
       <Primary>1</Primary>
     </key>
-    <key id="499" parent="170">
+    <key id="501" parent="170">
       <ColNames>PATH</ColNames>
       <UnderlyingIndexName>sqlite_autoindex_FileShare_1</UnderlyingIndexName>
     </key>
-    <key id="500" parent="170">
+    <key id="502" parent="170">
       <ColNames>DATE</ColNames>
       <UnderlyingIndexName>sqlite_autoindex_FileShare_2</UnderlyingIndexName>
     </key>
-    <column id="501" parent="171" name="ID">
+    <key id="503" parent="170">
+      <ColNames>SHARE</ColNames>
+      <UnderlyingIndexName>sqlite_autoindex_FileShare_3</UnderlyingIndexName>
+    </key>
+    <column id="504" parent="171" name="ID">
       <Position>1</Position>
       <DataType>INTEGER|0s</DataType>
       <SequenceIdentity>null</SequenceIdentity>
     </column>
-    <column id="502" parent="171" name="USERNAME">
+    <column id="505" parent="171" name="USERNAME">
       <Position>2</Position>
       <DataType>TEXT|0s</DataType>
       <NotNull>1</NotNull>
     </column>
-    <column id="503" parent="171" name="EMAIL">
+    <column id="506" parent="171" name="EMAIL">
       <Position>3</Position>
       <DataType>TEXT|0s</DataType>
       <NotNull>1</NotNull>
     </column>
-    <column id="504" parent="171" name="FULLNAME">
+    <column id="507" parent="171" name="FULLNAME">
       <Position>4</Position>
       <DataType>TEXT|0s</DataType>
       <NotNull>1</NotNull>
     </column>
-    <column id="505" parent="171" name="PASSWORD">
+    <column id="508" parent="171" name="PASSWORD">
       <Position>5</Position>
       <DataType>TEXT|0s</DataType>
       <NotNull>1</NotNull>
     </column>
-    <index id="506" parent="171" name="sqlite_autoindex_Users_1">
+    <index id="509" parent="171" name="sqlite_autoindex_Users_1">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>USERNAME</ColNames>
       <ColumnCollations></ColumnCollations>
       <Unique>1</Unique>
     </index>
-    <index id="507" parent="171" name="sqlite_autoindex_Users_2">
+    <index id="510" parent="171" name="sqlite_autoindex_Users_2">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>EMAIL</ColNames>
       <ColumnCollations></ColumnCollations>
       <Unique>1</Unique>
     </index>
-    <index id="508" parent="171" name="sqlite_autoindex_Users_3">
+    <index id="511" parent="171" name="sqlite_autoindex_Users_3">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>FULLNAME</ColNames>
       <ColumnCollations></ColumnCollations>
       <Unique>1</Unique>
     </index>
-    <key id="509" parent="171">
+    <key id="512" parent="171">
       <ColNames>ID</ColNames>
       <Primary>1</Primary>
     </key>
-    <key id="510" parent="171">
+    <key id="513" parent="171">
       <ColNames>USERNAME</ColNames>
       <UnderlyingIndexName>sqlite_autoindex_Users_1</UnderlyingIndexName>
     </key>
-    <key id="511" parent="171">
+    <key id="514" parent="171">
       <ColNames>EMAIL</ColNames>
       <UnderlyingIndexName>sqlite_autoindex_Users_2</UnderlyingIndexName>
     </key>
-    <key id="512" parent="171">
+    <key id="515" parent="171">
       <ColNames>FULLNAME</ColNames>
       <UnderlyingIndexName>sqlite_autoindex_Users_3</UnderlyingIndexName>
     </key>
-    <column id="513" parent="172" name="type">
+    <column id="516" parent="172" name="type">
       <Position>1</Position>
       <DataType>text|0s</DataType>
     </column>
-    <column id="514" parent="172" name="name">
+    <column id="517" parent="172" name="name">
       <Position>2</Position>
       <DataType>text|0s</DataType>
     </column>
-    <column id="515" parent="172" name="tbl_name">
+    <column id="518" parent="172" name="tbl_name">
       <Position>3</Position>
       <DataType>text|0s</DataType>
     </column>
-    <column id="516" parent="172" name="rootpage">
+    <column id="519" parent="172" name="rootpage">
       <Position>4</Position>
       <DataType>int|0s</DataType>
     </column>
-    <column id="517" parent="172" name="sql">
+    <column id="520" parent="172" name="sql">
       <Position>5</Position>
       <DataType>text|0s</DataType>
     </column>
-    <column id="518" parent="173" name="name">
+    <column id="521" parent="173" name="name">
       <Position>1</Position>
     </column>
-    <column id="519" parent="173" name="seq">
+    <column id="522" parent="173" name="seq">
       <Position>2</Position>
     </column>
   </database-model>

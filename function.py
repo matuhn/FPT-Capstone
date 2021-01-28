@@ -65,12 +65,14 @@ def hash_password(password):
     return hashlib.md5(password.encode()).hexdigest()
 
 
-def gen_file_name(name, username):
+def gen_file_name(name, username, pdir):
     parent_dir = os.path.join(config.UPLOAD_DIR, hash_password(username))
+    parent_dir = os.path.join(parent_dir, pdir)
     init_directory(parent_dir)
-    new_name = make_unique(name)
+    new1_name = make_unique(name)
     directory = hash_password(username)
-    return os.path.join(parent_dir, new_name), directory, new_name
+    new_name = (pdir + "/" if pdir != "" else "") + new1_name
+    return os.path.join(parent_dir, new1_name), directory, new_name
 
 
 def make_file_path(parent_dir):
