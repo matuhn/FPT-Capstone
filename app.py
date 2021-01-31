@@ -147,9 +147,7 @@ def list_file():
     try:
         if flask.request.method == 'POST':
             parent_dir = flask.request.form.get("dir")
-            username = flask.request.form.get("share")
-            if username == "":
-                username = function.hash_password(flask.session['USERNAME'])
+            username = function.hash_password(flask.session['USERNAME'])
             if parent_dir != "" and not parent_dir.startswith("\\") and not parent_dir.startswith("/"):
                 print("dir "+parent_dir)
                 path = os.path.join(function.make_file_path(username), parent_dir)
