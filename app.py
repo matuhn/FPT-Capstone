@@ -5,6 +5,7 @@ import user
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 import os
+import share
 
 
 app = flask.Flask(__name__)
@@ -104,6 +105,7 @@ def upload_file():
             filename = secure_filename(file.filename)
             try:
                 filename, directory, new_name = function.gen_file_name(filename, flask.session['USERNAME'], parent_dir)
+                share.add_permission(directory, new_name, "")
             except KeyError:
                 return flask.jsonify({"code": 500, "result": "Please login before doing this"})
             file.save(filename)
@@ -182,11 +184,16 @@ def edit_file():
                     return flask.jsonify({"code": 404, "result": "Not Found"})
                 return flask.jsonify({"code": 200, "result": "Deleted"})
             #rename file
-            if action == "rename":
+            elif action == "rename":
                 new_name = flask.request.form.get("new_name")
                 function.rename_file(parent_dir, name, new_name)
                 return flask.jsonify({"code": 200, "result": "Renamed"})
-            return flask.jsonify({"code": 200, "result": "Please provide one action"})
+            #share_file
+            elif action == "share":
+                username = flask.request.form.get("share")
+                return share.add_permission_of_list_username(username, parent_dir, name)
+            else:
+                return flask.jsonify({"code": 200, "result": "Please provide one action"})
         else:
             print(flask.session['USERNAME'], parent_dir)
             return flask.jsonify({"code": 500, "result": "No Permission"})

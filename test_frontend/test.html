@@ -89,3 +89,12 @@ createDirectory
     <input type="text" name="sub_dir" />
     <input type="submit"/>
 </form>
+
+shareFile
+<form method="POST" action="http://127.0.0.1:5000/api/editFile">
+    <input type="text" name="action" value="share" />
+    <input type="text" name="dir" />
+    <input type="text" name="file_name" />
+    <input type="text" name="share" />
+    <input type="submit"/>
+</form>

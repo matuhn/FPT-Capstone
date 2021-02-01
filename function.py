@@ -43,7 +43,7 @@ def init_database():
             conn.cursor().execute(query)
             query = "CREATE TABLE IF NOT EXISTS FileShare " \
                     "(ID INTEGER PRIMARY KEY AUTOINCREMENT, " \
-                    "PATH TEXT NOT NULL UNIQUE, DATE TEXT NOT NULL UNIQUE, " \
+                    "DIR TEXT NOT NULL UNIQUE, FILENAME TEXT NOT NULL UNIQUE, " \
                     "SHARE TEXT NOT NULL UNIQUE)"
             conn.cursor().execute(query)
             conn.commit()
