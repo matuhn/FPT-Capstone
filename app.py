@@ -103,6 +103,7 @@ def upload_file():
             return flask.jsonify({"code": 500, "result": "No selected file"})
         if file:
             filename = secure_filename(file.filename)
+            print(filename)
             try:
                 filename, directory, new_name = function.gen_file_name(filename, flask.session['USERNAME'], parent_dir)
             except KeyError:
@@ -188,7 +189,7 @@ def edit_file():
                 return flask.jsonify({"code": 200, "result": "Deleted"})
             #rename file
             elif action == "rename":
-                new_name = flask.request.form.get("new_name")
+                new_name = function.make_unique(flask.request.form.get("new_name"))
                 function.rename_file(parent_dir, name, new_name)
                 share.edit_file_name(parent_dir, name, new_name)
                 return flask.jsonify({"code": 200, "result": "Renamed"})
