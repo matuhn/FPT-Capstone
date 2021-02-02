@@ -95,6 +95,29 @@ shareFile
     <input type="text" name="action" value="share" />
     <input type="text" name="dir" />
     <input type="text" name="file_name" />
-    <input type="text" name="share" />
+    <input type="text" name="username_list" />
+    <input type="submit"/>
+</form>
+
+revokeshareFile
+<form method="POST" action="http://127.0.0.1:5000/api/editFile">
+    <input type="text" name="action" value="revoke" />
+    <input type="text" name="dir" />
+    <input type="text" name="file_name" />
+    <input type="text" name="username_list" />
+    <input type="submit"/>
+</form>
+
+listShare
+<form method="POST" action="http://127.0.0.1:5000/api/editFile">
+    <input type="text" name="action" value="list_share" />
+    <input type="text" name="dir" />
+    <input type="text" name="file_name" />
+    <input type="submit"/>
+</form>
+
+
+listShare
+<form method="POST" action="http://127.0.0.1:5000/api/listSharedFile">
     <input type="submit"/>
 </form>

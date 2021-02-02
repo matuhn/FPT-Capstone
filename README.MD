@@ -13,7 +13,7 @@ policy, and to change personal information…
 - [x] Document uploading module: this module allows users to upload documents into the
 cloud.
 
-- [ ] Document sharing module: this module allows users to share documents to friends,
+- [x] Document sharing module: this module allows users to share documents to friends,
 and customers.
 
 - [ ] Document management module: this module allows users to create security policies

@@ -105,10 +105,10 @@ def upload_file():
             filename = secure_filename(file.filename)
             try:
                 filename, directory, new_name = function.gen_file_name(filename, flask.session['USERNAME'], parent_dir)
-                share.add_permission(directory, new_name, "")
             except KeyError:
                 return flask.jsonify({"code": 500, "result": "Please login before doing this"})
             file.save(filename)
+            share.add_permission(directory, new_name, "|")
             return flask.jsonify({"code": 200, "result": "dir=" + directory + "&file_name=" + new_name})
 
 
@@ -135,13 +135,14 @@ def download_file():
         parent_dir = flask.request.form.get("dir")
         name = flask.request.form.get("file_name")
         parent_dir = secure_filename(parent_dir)
-        if function.hash_password(flask.session['USERNAME']) == parent_dir:
+        permission = "|" + flask.session['USERNAME'] + "|"
+        if function.hash_password(flask.session['USERNAME']) == parent_dir or permission in share.check_permission(parent_dir, name):
             return flask.send_from_directory(function.make_file_path(parent_dir), name)
         else:
             return flask.jsonify({"code": 500, "result": "No Permission"})
     except Exception as e:
         print(e)
-        return flask.jsonify({"code": 500, "result": "Please login before doing this"})
+        return flask.jsonify({"code": 500, "result": "Something error"})
 
 
 @app.route('/api/listFile', methods=['GET', 'POST'])
@@ -174,12 +175,14 @@ def edit_file():
         parent_dir = flask.request.form.get("dir")
         name = flask.request.form.get("file_name")
         parent_dir = secure_filename(parent_dir)
-        if function.hash_password(flask.session['USERNAME']) == parent_dir:
+        permission = "|" + flask.session['USERNAME'] + "|"
+        if function.hash_password(flask.session['USERNAME']) == parent_dir or (permission in share.check_permission(parent_dir, name)):
             action = flask.request.form.get("action")
             #delete file
             if action == "delete":
                 try:
                     function.delete_file(parent_dir, name)
+                    share.delete_file(parent_dir, name)
                 except:
                     return flask.jsonify({"code": 404, "result": "Not Found"})
                 return flask.jsonify({"code": 200, "result": "Deleted"})
@@ -187,15 +190,23 @@ def edit_file():
             elif action == "rename":
                 new_name = flask.request.form.get("new_name")
                 function.rename_file(parent_dir, name, new_name)
+                share.edit_file_name(parent_dir, name, new_name)
                 return flask.jsonify({"code": 200, "result": "Renamed"})
             #share_file
             elif action == "share":
-                username = flask.request.form.get("share")
+                username = flask.request.form.get("username_list")
                 return share.add_permission_of_list_username(username, parent_dir, name)
+            #get_share_list
+            elif action == "list_share":
+                share_list = share.check_permission(parent_dir, name)
+                return flask.jsonify({"code": 200, "result": share_list})
+            #revoke_share_file
+            elif action == "revoke":
+                username = flask.request.form.get("username_list")
+                return share.revoke_permission_of_list_username(username, parent_dir, name)
             else:
                 return flask.jsonify({"code": 200, "result": "Please provide one action"})
         else:
-            print(flask.session['USERNAME'], parent_dir)
             return flask.jsonify({"code": 500, "result": "No Permission"})
     except Exception as e:
         print(e)
@@ -207,6 +218,16 @@ def list_user():
     try:
         users = user.get_all_user()
         return flask.jsonify({"code": 200, "result": {"userList": users}})
+    except KeyError:
+        return flask.jsonify({"code": 500, "result": "Something wrong"})
+
+
+@app.route('/api/listSharedFile', methods=['GET', 'POST'])
+def list_shared_file():
+    try:
+        permission = "|" + flask.session['USERNAME'] + "|"
+        files = share.get_shared_file_by_username(permission)
+        return flask.jsonify({"code": 200, "result": {"sharedFileList": files}})
     except KeyError:
         return flask.jsonify({"code": 500, "result": "Something wrong"})
 
