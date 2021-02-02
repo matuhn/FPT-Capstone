@@ -132,8 +132,8 @@ def create_dir():
 @app.route('/api/downloadFile', methods=['GET', 'POST'])
 def download_file():
     try:
-        parent_dir = flask.request.form.get("dir")
-        name = flask.request.form.get("file_name")
+        parent_dir = flask.request.args.get("dir")
+        name = flask.request.args.get("file_name")
         parent_dir = secure_filename(parent_dir)
         permission = "|" + flask.session['USERNAME'] + "|"
         if function.hash_password(flask.session['USERNAME']) == parent_dir or permission in share.check_permission(parent_dir, name):

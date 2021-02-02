@@ -110,7 +110,7 @@ def gen_link(username, file_name, parent_dir, filetype, linktype):
         param = "action=delete&dir=" + username + "&file_name=" + \
                 (parent_dir + "/" if parent_dir != "" else "") + file_name
     if linktype == "rename":
-        param = "action=delete&dir=" + username + "&file_name=" + \
+        param = "action=rename&dir=" + username + "&file_name=" + \
                 (parent_dir + "/" if parent_dir != "" else "") + file_name + "&new_name="
     return param
 
