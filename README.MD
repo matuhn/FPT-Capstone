@@ -22,5 +22,5 @@ for documents
 - [ ] Report modules: this module allows users to view statistics about downloads and
 views of documents.
 
-- [ ] Backup and Restore module: this module allows users to backup and restore
+- [ ] REJECTED Backup and Restore module: this module allows users to backup and restore
 documents that have been uploaded into the cloud.
