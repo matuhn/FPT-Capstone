@@ -93,7 +93,11 @@ def list_file_in_directory(path, username, parent_dir):
                 download = gen_link(username, f, parent_dir, filetype, "download")
             delete = gen_link(username, f, parent_dir, filetype, "delete")
             rename = gen_link(username, f, parent_dir, filetype, "rename")
+            share = gen_link(username, f, parent_dir, filetype, "share")
+            revoke = gen_link(username, f, parent_dir, filetype, "revoke")
+            list_share = gen_link(username, f, parent_dir, filetype, "list_share")
             f = {"file_name": f, "download": download, "delete": delete, "rename": rename,
+                 "share": share, "revoke": revoke, "list_share": list_share,
                  "modified": os.path.getmtime(os.path.join(path, f)), "file_type": filetype}
             paths.append(f)
     except:
@@ -107,12 +111,21 @@ def gen_link(username, file_name, parent_dir, filetype, linktype):
             param = "dir=" + username + "&file_name=" + (parent_dir + "/" if parent_dir != "" else "") + file_name
         if filetype == "d":
             param = "dir=" + (parent_dir + "/" if parent_dir != "" else "") + file_name
-    if linktype == "delete":
+    elif linktype == "delete":
         param = "action=delete&dir=" + username + "&file_name=" + \
                 (parent_dir + "/" if parent_dir != "" else "") + file_name
-    if linktype == "rename":
+    elif linktype == "rename":
         param = "action=rename&dir=" + username + "&file_name=" + \
                 (parent_dir + "/" if parent_dir != "" else "") + file_name + "&new_name="
+    elif linktype == "share":
+        param = "action=share&dir=" + username + "&file_name=" + \
+                (parent_dir + "/" if parent_dir != "" else "") + file_name + "&username_list="
+    elif linktype == "revoke":
+        param = "action=revoke&dir=" + username + "&file_name=" + \
+                (parent_dir + "/" if parent_dir != "" else "") + file_name + "&username_list="
+    elif linktype == "list_share":
+        param = "action=list_share&dir=" + username + "&file_name=" + \
+                (parent_dir + "/" if parent_dir != "" else "") + file_name
     return param
 
 
