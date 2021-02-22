@@ -6,6 +6,7 @@ from pathlib import Path
 import os
 from uuid import uuid4
 import json
+import shutil
 
 
 def make_unique(string):
@@ -117,11 +118,10 @@ def gen_link(username, file_name, parent_dir, filetype, linktype):
 
 def delete_file(parent_dir, file_name):
     path = os.path.join(make_file_path(parent_dir), file_name)
-    try:
+    if os.path.isdir(path):
+        shutil.rmtree(path)
+    else:
         os.remove(path)
-    except Exception as e:
-        print(e)
-        os.rmdir(path)
 
 
 def rename_file(parent_dir, old_name, new_name):

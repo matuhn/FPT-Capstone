@@ -117,14 +117,13 @@ def upload_file():
 def create_dir():
     try:
         if flask.request.method == 'POST':
-            parent_dir = flask.request.form.get("dir")
-            sub_dir = flask.request.form.get("sub_dir")
+            sub_dir = flask.request.form.get("dir")
+            sub_dir = function.make_unique(sub_dir)
             username = function.hash_password(flask.session['USERNAME'])
-            if parent_dir == "":
-                parent_dir = username
-                function.init_directory(os.path.join(os.path.join(config.UPLOAD_DIR, parent_dir), sub_dir))
-                return flask.jsonify({"code": 200, "result": "Created"})
-            return flask.jsonify({"code": 500, "result": parent_dir})
+            parent_dir = username
+            share.add_permission(parent_dir, sub_dir, "|")
+            function.init_directory(os.path.join(os.path.join(config.UPLOAD_DIR, parent_dir), sub_dir))
+            return flask.jsonify({"code": 200, "result": "Created"})
     except Exception as e:
         print(e)
         return flask.jsonify({"code": 500, "result": "Please login before doing this"})
