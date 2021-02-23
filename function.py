@@ -85,12 +85,15 @@ def list_file_in_directory(path, username, parent_dir):
         files = os.listdir(path)
         paths = []
         for f in files:
-            if os.path.isfile(os.path.join(os.path.join(os.getcwd(), path), f)):
+            fullpath = os.path.join(os.path.join(os.getcwd(), path), f)
+            if os.path.isfile(fullpath):
                 filetype = "f"
                 download = gen_link(username, f, parent_dir, filetype, "download")
+                size = os.path.getsize(fullpath)
             else:
                 filetype = "d"
                 download = gen_link(username, f, parent_dir, filetype, "download")
+                size = ""
             delete = gen_link(username, f, parent_dir, filetype, "delete")
             rename = gen_link(username, f, parent_dir, filetype, "rename")
             share = gen_link(username, f, parent_dir, filetype, "share")
@@ -98,7 +101,7 @@ def list_file_in_directory(path, username, parent_dir):
             list_share = gen_link(username, f, parent_dir, filetype, "list_share")
             f = {"file_name": f, "download": download, "delete": delete, "rename": rename,
                  "share": share, "revoke": revoke, "list_share": list_share,
-                 "modified": os.path.getmtime(os.path.join(path, f)), "file_type": filetype}
+                 "modified": os.path.getmtime(os.path.join(path, f)), "file_type": filetype, "size": size}
             paths.append(f)
     except:
         paths = "Error Not Found"
