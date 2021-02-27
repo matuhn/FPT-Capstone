@@ -118,7 +118,9 @@ def create_dir():
     try:
         if flask.request.method == 'POST':
             sub_dir = flask.request.form.get("dir")
-            sub_dir = function.make_unique(sub_dir)
+            temp = sub_dir.split("/")
+            temp[-1] = function.make_unique(temp[-1])
+            sub_dir = "/".join(temp)
             username = function.hash_password(flask.session['USERNAME'])
             parent_dir = username
             share.add_permission(parent_dir, sub_dir, "|")
