@@ -1395,13 +1395,14 @@ hr {
 
 .custom-select {
     padding: 9px 45px 9px 20px;
-    background: url(../images/arrow-down.png) right 16px center no-repeat #f4f8f9;
-    border: none;
-    margin-left: 8px;
+    width: 100%;
+    background: #fff url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='5'%3E%3Cpath fill='%23343a40' d='M2 0L0 2h4zm0 5L0 3h4z'/%3E%3C/svg%3E") no-repeat right .75rem center/8px 10px;
+    border: 1px solid #ced4da;
     font-size: 15px;
     font-weight: 600;
     -webkit-appearance: none;
-    -moz-appearance: none
+    -moz-appearance: none;
+    color: #000000;
 }
 
 ul.list-inline {
