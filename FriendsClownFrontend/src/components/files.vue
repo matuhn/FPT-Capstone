@@ -58,7 +58,7 @@
                   </li>
                 </ul>
               </td>
-              <td>1 KB</td>
+              <td>{{Number((item.size/1000).toFixed(0))}} KB</td>
               <td>{{ getTime(item.modified) }}</td>
             </tr>
 
@@ -431,7 +431,7 @@ export default {
     }
     ,
     createNewFolder() {
-      var dir = (this.currentDir === '' ? '' : this.currentDir +  '/') + this.editForm.name;
+      var dir = (this.currentDir === '' ? '' : this.currentDir + '/') + this.editForm.name;
       var input = qs.stringify({
         dir: dir
       });
@@ -576,6 +576,7 @@ export default {
 
     },
     loadFiles() {
+      this.$parent.checkAuthenticaion();
       var input = qs.stringify({
         dir: this.currentDir,
       });

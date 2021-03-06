@@ -233,6 +233,5 @@ def list_shared_file():
     except KeyError:
         return flask.jsonify({"code": 500, "result": "Something wrong"})
 
-
 if __name__ == '__main__':
     app.run()

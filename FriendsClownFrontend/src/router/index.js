@@ -35,6 +35,11 @@ const routes = [
         component: () => import('../components/files')
     },
     {
+        path: "/shares",
+        name: "shares",
+        component: () => import('../components/Sharedfiles')
+    },
+    {
         path: "/notfound",
         name: "notfound",
         component: () => import('../components/notFound')
