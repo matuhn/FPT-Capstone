@@ -103,15 +103,14 @@ def upload_file():
         if file.filename == '':
             return flask.jsonify({"code": 500, "result": "No selected file"})
         if file:
+            content = file.read()
             filename = secure_filename(file.filename)
-            print(filename)
             try:
                 filename, directory, new_name = function.gen_file_name(filename, flask.session['USERNAME'], parent_dir)
             except KeyError:
                 return flask.jsonify({"code": 500, "result": "Please login before doing this"})
-            file.save(filename)
             share.add_permission(directory, new_name, "|")
-            fcrypto.encrypt_file(directory, new_name)
+            fcrypto.encrypt_file(directory, new_name, content)
             return flask.jsonify({"code": 200, "result": "dir=" + directory + "&file_name=" + new_name})
 
 

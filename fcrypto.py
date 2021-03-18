@@ -58,11 +58,9 @@ def aes_decrypt(cipher_text, key, nonce):
     plain_text = cipher.decrypt(cipher_text)
     return plain_text
 
-def encrypt_file(parent_dir, filename):
+def encrypt_file(parent_dir, filename, content):
     path = os.path.join(function.make_file_path(parent_dir), filename)
-    with open(path, 'rb') as f:
-        data = f.read()
-    cipher_text, key, nonce = aes_encrypt(data)
+    cipher_text, key, nonce = aes_encrypt(content)
     #encrypt ECC
     with open(path,'wb') as f:
         f.write(cipher_text)
