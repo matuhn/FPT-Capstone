@@ -7,6 +7,7 @@ from werkzeug.utils import secure_filename
 import os
 import share
 import fcrypto
+import mimetypes
 
 app = flask.Flask(__name__)
 app.secret_key = config.SECRET_KEY
@@ -18,7 +19,6 @@ def index():
     function.init_database()
     text = "Init Database"
     function.init_directory(config.UPLOAD_DIR)
-    function.init_directory(config.DOWNLOAD_DIR)
     text += "\nInit Upload Directory"
     return text
 
@@ -142,8 +142,10 @@ def download_file():
         permission = "|" + flask.session['USERNAME'] + "|"
         if function.hash_password(flask.session['USERNAME']) == parent_dir or permission in share.check_permission(parent_dir, name):
             key, nonce = fcrypto.get_key_and_nonce(parent_dir, name)
-            name = fcrypto.decrypt_file(parent_dir, name, key, nonce)
-            return flask.send_from_directory(config.DOWNLOAD_DIR, name)
+            path, content = fcrypto.decrypt_file(parent_dir, name, key, nonce)
+            #return flask.send_from_directory(config.DOWNLOAD_DIR, name)
+            mime = mimetypes.guess_type(path)[0]
+            return flask.Response(content, mimetype=mime)
         else:
             return flask.jsonify({"code": 500, "result": "No Permission"})
     except Exception as e:

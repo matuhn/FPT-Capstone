@@ -73,11 +73,12 @@ def decrypt_file(parent_dir, filename, key, nonce):
     with open(path, 'rb') as f:
         data = f.read()
     plain_text = aes_decrypt(data, key, nonce)
-    download_name = function.make_unique(filename)
-    download_path = os.path.join(config.DOWNLOAD_DIR, download_name)
-    with open(download_path,'wb') as f:
-        f.write(plain_text)
-    return download_name
+    # download_name = function.make_unique(filename)
+    # download_path = os.path.join(config.DOWNLOAD_DIR, download_name)
+    # with open(download_path,'wb') as f:
+    #     f.write(plain_text)
+    # return download_name
+    return path, plain_text
 
 # key, nonce = encrypt_file("3408b253f823adf5d4e659e20b78a174","test.jpg")
 # decrypt_file("./","test.enc", key, nonce)
