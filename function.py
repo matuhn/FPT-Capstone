@@ -47,6 +47,11 @@ def init_database():
                     "DIR TEXT NOT NULL, FILENAME TEXT NOT NULL UNIQUE, " \
                     "SHARE TEXT NOT NULL)"
             conn.cursor().execute(query)
+            query = "CREATE TABLE IF NOT EXISTS Crypto " \
+                    "(ID INTEGER PRIMARY KEY AUTOINCREMENT, " \
+                    "DIR TEXT NOT NULL, FILENAME TEXT NOT NULL UNIQUE, " \
+                    "KEY TEXT NOT NULL, NONCE TEXT NOT NULL)"
+            conn.cursor().execute(query)
             conn.commit()
     except Exception as ex:
         print(ex)

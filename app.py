@@ -6,7 +6,7 @@ from flask_cors import CORS
 from werkzeug.utils import secure_filename
 import os
 import share
-
+import fcrypto
 
 app = flask.Flask(__name__)
 app.secret_key = config.SECRET_KEY
@@ -18,6 +18,7 @@ def index():
     function.init_database()
     text = "Init Database"
     function.init_directory(config.UPLOAD_DIR)
+    function.init_directory(config.DOWNLOAD_DIR)
     text += "\nInit Upload Directory"
     return text
 
@@ -110,6 +111,7 @@ def upload_file():
                 return flask.jsonify({"code": 500, "result": "Please login before doing this"})
             file.save(filename)
             share.add_permission(directory, new_name, "|")
+            fcrypto.encrypt_file(directory, new_name)
             return flask.jsonify({"code": 200, "result": "dir=" + directory + "&file_name=" + new_name})
 
 
@@ -139,7 +141,9 @@ def download_file():
         parent_dir = secure_filename(parent_dir)
         permission = "|" + flask.session['USERNAME'] + "|"
         if function.hash_password(flask.session['USERNAME']) == parent_dir or permission in share.check_permission(parent_dir, name):
-            return flask.send_from_directory(function.make_file_path(parent_dir), name)
+            key, nonce = fcrypto.get_key_and_nonce(parent_dir, name)
+            name = fcrypto.decrypt_file(parent_dir, name, key, nonce)
+            return flask.send_from_directory(config.DOWNLOAD_DIR, name)
         else:
             return flask.jsonify({"code": 500, "result": "No Permission"})
     except Exception as e:
@@ -185,6 +189,7 @@ def edit_file():
                 try:
                     function.delete_file(parent_dir, name)
                     share.delete_file(parent_dir, name)
+                    fcrypto.delete_file(parent_dir, name)
                 except:
                     return flask.jsonify({"code": 404, "result": "Not Found"})
                 return flask.jsonify({"code": 200, "result": "Deleted"})
@@ -193,6 +198,7 @@ def edit_file():
                 new_name = function.make_unique(flask.request.form.get("new_name"))
                 function.rename_file(parent_dir, name, new_name)
                 share.edit_file_name(parent_dir, name, new_name)
+                fcrypto.edit_file_name(parent_dir, name, new_name)
                 return flask.jsonify({"code": 200, "result": "Renamed"})
             #share_file
             elif action == "share":
