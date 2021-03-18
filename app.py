@@ -145,7 +145,7 @@ def download_file():
             path, content = fcrypto.decrypt_file(parent_dir, name, key, nonce)
             #return flask.send_from_directory(config.DOWNLOAD_DIR, name)
             mime = mimetypes.guess_type(path)[0]
-            return flask.Response(content, mimetype=mime)
+            return flask.Response(content, mimetype=mime, headers={"Content-disposition":"attachment; filename="+name+""})
         else:
             return flask.jsonify({"code": 500, "result": "No Permission"})
     except Exception as e:
