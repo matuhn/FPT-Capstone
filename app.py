@@ -2,9 +2,11 @@ import flask
 import function
 import config
 import user
+from Crypto.PublicKey import ECC
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 import os
+import sys
 import share
 import fcrypto
 import mimetypes
@@ -13,6 +15,8 @@ app = flask.Flask(__name__)
 app.secret_key = config.SECRET_KEY
 CORS(app, supports_credentials=True)
 
+global ecc_private_key
+global ecc_public_key
 
 @app.route('/api/install')
 def index():
@@ -110,7 +114,7 @@ def upload_file():
             except KeyError:
                 return flask.jsonify({"code": 500, "result": "Please login before doing this"})
             share.add_permission(directory, new_name, "|")
-            fcrypto.encrypt_file(directory, new_name, content)
+            fcrypto.encrypt_file(directory, new_name, content, ecc_public_key)
             return flask.jsonify({"code": 200, "result": "dir=" + directory + "&file_name=" + new_name})
 
 
@@ -141,7 +145,7 @@ def download_file():
         permission = "|" + flask.session['USERNAME'] + "|"
         if function.hash_password(flask.session['USERNAME']) == parent_dir or permission in share.check_permission(parent_dir, name):
             key, nonce = fcrypto.get_key_and_nonce(parent_dir, name)
-            path, content = fcrypto.decrypt_file(parent_dir, name, key, nonce)
+            path, content = fcrypto.decrypt_file(parent_dir, name, key, nonce, ecc_private_key)
             #return flask.send_from_directory(config.DOWNLOAD_DIR, name)
             mime = mimetypes.guess_type(path)[0]
             return flask.Response(content, mimetype=mime, headers={"Content-disposition":"attachment; filename="+name+""})
@@ -242,4 +246,25 @@ def list_shared_file():
 
 
 if __name__ == '__main__':
+    if len(sys.argv) < 2:
+        print("Unable to load key")
+        sys.exit(1)
+
+    if len(sys.argv) < 3:
+        try:
+            ecc_key = ECC.import_key(open(sys.argv[1], 'rt').read())
+        except Exception as e:
+            print("Unable to load key", e)
+            sys.exit(1)
+    else:
+        try:
+            ecc_key = ECC.import_key(open(sys.argv[1], 'rt').read(), passphrase=sys.argv[2])
+        except Exception as e:
+            print("Unable to load key", e)
+            sys.exit(1)
+
+    ecc_public_key = ecc_key.public_key()
+    if ecc_key.has_private():
+        ecc_private_key = ecc_key
+
     app.run()

@@ -1,10 +1,16 @@
 from Crypto.Cipher import AES
+from Crypto.PublicKey import ECC
 from Crypto.Random import get_random_bytes
+from Crypto.Math.Numbers import Integer
 import os
+import hashlib
 import function
 import config
 #pycryptodome
 
+# P-256 prime256v1 secp256r1
+# https://pydoc.net/pycryptodome/3.4.6/Crypto.PublicKey.ECC/
+_curve_order = ECC.Integer(0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551)
 
 def add_file(parent_dir, filename, key, nonce):
     try:
@@ -58,19 +64,39 @@ def aes_decrypt(cipher_text, key, nonce):
     plain_text = cipher.decrypt(cipher_text)
     return plain_text
 
-def encrypt_file(parent_dir, filename, content):
+def ecc_point_to_256_bit_key(point):
+    sha = hashlib.sha256(point.x.to_bytes())
+    sha.update(point.y.to_bytes())
+    return sha.digest()
+
+def ecc_encrypt(plain_text, ecc_public_key):
+    blind = Integer.random_range(min_inclusive=1, max_exclusive=_curve_order)
+    aes_key = ecc_point_to_256_bit_key(ecc_public_key.pointQ * blind)
+    ecc_shared_key = ECC.construct(curve='P-256', d=blind)
+    cipher = AES.new(aes_key, AES.MODE_GCM)
+    nonce = cipher.nonce
+    cipher_text = cipher.encrypt(plain_text)
+    return cipher_text, ecc_shared_key.public_key().export_key(format='PEM'), nonce
+
+def ecc_decrypt(cipher_text, ecc_private_key, shared_key, nonce):
+    ecc_shared_key = ECC.import_key(shared_key)
+    aes_key = ecc_point_to_256_bit_key(ecc_private_key.d * ecc_shared_key.pointQ)
+    cipher = AES.new(aes_key, AES.MODE_GCM, nonce=nonce)
+    plain_text = cipher.decrypt(cipher_text)
+    return plain_text
+
+def encrypt_file(parent_dir, filename, content, ecc_public_key):
     path = os.path.join(function.make_file_path(parent_dir), filename)
-    cipher_text, key, nonce = aes_encrypt(content)
-    #encrypt ECC
+    cipher_text, key, nonce = ecc_encrypt(content, ecc_public_key)
     with open(path,'wb') as f:
         f.write(cipher_text)
     add_file(parent_dir, filename, key, nonce)
 
-def decrypt_file(parent_dir, filename, key, nonce):
+def decrypt_file(parent_dir, filename, key, nonce, ecc_private_key):
     path = os.path.join(function.make_file_path(parent_dir), filename)
     with open(path, 'rb') as f:
         data = f.read()
-    plain_text = aes_decrypt(data, key, nonce)
+    plain_text = ecc_decrypt(data, ecc_private_key, key, nonce)
     # download_name = function.make_unique(filename)
     # download_path = os.path.join(config.DOWNLOAD_DIR, download_name)
     # with open(download_path,'wb') as f:
@@ -80,4 +106,3 @@ def decrypt_file(parent_dir, filename, key, nonce):
 
 # key, nonce = encrypt_file("3408b253f823adf5d4e659e20b78a174","test.jpg")
 # decrypt_file("./","test.enc", key, nonce)
-
