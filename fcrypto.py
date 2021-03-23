@@ -8,10 +8,6 @@ import function
 import config
 #pycryptodome
 
-# P-256 prime256v1 secp256r1
-# https://pydoc.net/pycryptodome/3.4.6/Crypto.PublicKey.ECC/
-_curve_order = ECC.Integer(0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551)
-
 def add_file(parent_dir, filename, key, nonce):
     try:
         query = "INSERT INTO Crypto(DIR, FILENAME, KEY, NONCE) " \
@@ -70,9 +66,8 @@ def ecc_point_to_256_bit_key(point):
     return sha.digest()
 
 def ecc_encrypt(plain_text, ecc_public_key):
-    blind = Integer.random_range(min_inclusive=1, max_exclusive=_curve_order)
-    aes_key = ecc_point_to_256_bit_key(ecc_public_key.pointQ * blind)
-    ecc_shared_key = ECC.construct(curve='P-256', d=blind)
+    ecc_shared_key = ECC.generate(curve='P-256')
+    aes_key = ecc_point_to_256_bit_key(ecc_public_key.pointQ * ecc_shared_key.d)
     cipher = AES.new(aes_key, AES.MODE_GCM)
     nonce = cipher.nonce
     cipher_text = cipher.encrypt(plain_text)
