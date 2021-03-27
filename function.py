@@ -68,7 +68,7 @@ def parameter_policy(parameter, regex):
 
 
 def hash_password(password):
-    return hashlib.md5(password.encode()).hexdigest()
+    return hashlib.md5((password + config.MD5_SALT).encode()).hexdigest()
 
 
 def gen_file_name(name, username, pdir):
