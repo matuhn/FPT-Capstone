@@ -16,10 +16,10 @@ cloud.
 - [x] Document sharing module: this module allows users to share documents to friends,
 and customers.
 
-- [ ] Document management module: this module allows users to create security policies
+- [x] Document management module: this module allows users to create security policies
 for documents
 
-- [ ] Report modules: this module allows users to view statistics about downloads and
+- [x] Report modules: this module allows users to view statistics about downloads and
 views of documents.
 
 - [ ] REJECTED Backup and Restore module: this module allows users to backup and restore

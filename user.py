@@ -85,7 +85,7 @@ def register(username, email, fullname, password):
             if (function.parameter_policy(email, config.EMAIL_POLICY)) == "Match":
                 if check_username_duplicate(username) != "Duplicate":
                     if check_email_duplicate(email, username) != "Duplicate":
-                        insert_user(username, email, fullname, function.hash_password(password))
+                        insert_user(username, email, fullname, function.hash_with_salt(password))
                         result = {"code": 200, "result": "Created user"}
                     else:
                         result = {"code": 500, "result": "Email Duplicate"}
@@ -104,7 +104,7 @@ def register(username, email, fullname, password):
 def login(username_or_email, password):
     try:
         result = select_user(username_or_email)[3]
-        if function.hash_password(password) == result:
+        if function.hash_with_salt(password) == result:
             result = {"code": 200, "result": "Login successfully"}
         else:
             result = {"code": 500, "result": "Check your account and login again"}
@@ -120,7 +120,7 @@ def edit(username, email, fullname, password):
         if (function.parameter_policy(email, config.EMAIL_POLICY)) == "Match":
             if check_email_duplicate(email, username) != "Duplicate":
                 if password != "":
-                    update_user(username, email, fullname, function.hash_password(password))
+                    update_user(username, email, fullname, function.md5_hash(password))
                     result = {"code": 200, "result": "Updated user"}
                 else:
                     result = {"code": 500, "result": "Password is not null"}

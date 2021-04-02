@@ -10,6 +10,8 @@ import sys
 import share
 import fcrypto
 import mimetypes
+import stats
+
 
 app = flask.Flask(__name__)
 app.secret_key = config.SECRET_KEY
@@ -114,6 +116,7 @@ def upload_file():
             except KeyError:
                 return flask.jsonify({"code": 500, "result": "Please login before doing this"})
             share.add_permission(directory, new_name, "|")
+            stats.add_times(directory, new_name, "0")
             fcrypto.encrypt_file(directory, new_name, content, ecc_public_key)
             return flask.jsonify({"code": 200, "result": "dir=" + directory + "&file_name=" + new_name})
 
@@ -126,7 +129,7 @@ def create_dir():
             temp = sub_dir.split("/")
             temp[-1] = function.make_unique(temp[-1])
             sub_dir = "/".join(temp)
-            username = function.hash_password(flask.session['USERNAME'])
+            username = function.md5_hash(flask.session['USERNAME'])
             parent_dir = username
             share.add_permission(parent_dir, sub_dir, "|")
             function.init_directory(os.path.join(os.path.join(config.UPLOAD_DIR, parent_dir), sub_dir))
@@ -143,9 +146,10 @@ def download_file():
         name = flask.request.args.get("file_name")
         parent_dir = secure_filename(parent_dir)
         permission = "|" + flask.session['USERNAME'] + "|"
-        if function.hash_password(flask.session['USERNAME']) == parent_dir or permission in share.check_permission(parent_dir, name):
+        if function.md5_hash(flask.session['USERNAME']) == parent_dir or permission in share.check_permission(parent_dir, name):
             key, nonce = fcrypto.get_key_and_nonce(parent_dir, name)
             path, content = fcrypto.decrypt_file(parent_dir, name, key, nonce, ecc_private_key)
+            stats.download(parent_dir, name)
             #return flask.send_from_directory(config.DOWNLOAD_DIR, name)
             mime = mimetypes.guess_type(path)[0]
             return flask.Response(content, mimetype=mime, headers={"Content-disposition":"attachment; filename="+name+""})
@@ -161,7 +165,7 @@ def list_file():
     try:
         if flask.request.method == 'POST':
             parent_dir = flask.request.form.get("dir")
-            username = function.hash_password(flask.session['USERNAME'])
+            username = function.md5_hash(flask.session['USERNAME'])
             if parent_dir != "" and not parent_dir.startswith("\\") and not parent_dir.startswith("/"):
                 print("dir "+parent_dir)
                 path = os.path.join(function.make_file_path(username), parent_dir)
@@ -187,7 +191,7 @@ def edit_file():
         name = flask.request.form.get("file_name")
         parent_dir = secure_filename(parent_dir)
         permission = "|" + flask.session['USERNAME'] + "|"
-        if function.hash_password(flask.session['USERNAME']) == parent_dir or (permission in share.check_permission(parent_dir, name)):
+        if function.md5_hash(flask.session['USERNAME']) == parent_dir or (permission in share.check_permission(parent_dir, name)):
             action = flask.request.form.get("action")
             #delete file
             if action == "delete":
@@ -195,6 +199,7 @@ def edit_file():
                     function.delete_file(parent_dir, name)
                     share.delete_file(parent_dir, name)
                     fcrypto.delete_file(parent_dir, name)
+                    stats.delete_file(parent_dir, name)
                 except:
                     return flask.jsonify({"code": 404, "result": "Not Found"})
                 return flask.jsonify({"code": 200, "result": "Deleted"})
@@ -204,6 +209,7 @@ def edit_file():
                 function.rename_file(parent_dir, name, new_name)
                 share.edit_file_name(parent_dir, name, new_name)
                 fcrypto.edit_file_name(parent_dir, name, new_name)
+                stats.edit_file_name(parent_dir, name, new_name)
                 return flask.jsonify({"code": 200, "result": "Renamed"})
             #share_file
             elif action == "share":
@@ -245,23 +251,47 @@ def list_shared_file():
         return flask.jsonify({"code": 500, "result": "Something wrong"})
 
 
-if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        print("Unable to load key")
-        sys.exit(1)
+@app.route('/api/dataUsage', methods=['GET', 'POST'])
+def data_usage():
+    try:
+        path = function.make_file_path(function.md5_hash(flask.session['USERNAME']))
+        return flask.jsonify({"code": 200, "result": {"used": function.get_size(path)}})
+    except KeyError:
+        return flask.jsonify({"code": 500, "result": "Something wrong"})
 
-    if len(sys.argv) < 3:
-        try:
-            ecc_key = ECC.import_key(open(sys.argv[1], 'rt').read())
-        except Exception as e:
-            print("Unable to load key", e)
+
+@app.route('/api/getStats', methods=['GET', 'POST'])
+def get_stats():
+    try:
+        dir = function.md5_hash(flask.session['USERNAME'])
+        st = stats.get_stats(dir)
+        return flask.jsonify({"code": 200, "result": {"stats": st}})
+    except KeyError:
+        return flask.jsonify({"code": 500, "result": "Something wrong"})
+
+
+if __name__ == '__main__':
+    dev = 1
+
+    if dev != 1:
+        if len(sys.argv) < 2:
+            print("Unable to load key")
             sys.exit(1)
+
+        if len(sys.argv) < 3:
+            try:
+                ecc_key = ECC.import_key(open(sys.argv[1], 'rt').read())
+            except Exception as e:
+                print("Unable to load key", e)
+                sys.exit(1)
+        else:
+            try:
+                ecc_key = ECC.import_key(open(sys.argv[1], 'rt').read(), passphrase=sys.argv[2])
+            except Exception as e:
+                print("Unable to load key", e)
+                sys.exit(1)
     else:
-        try:
-            ecc_key = ECC.import_key(open(sys.argv[1], 'rt').read(), passphrase=sys.argv[2])
-        except Exception as e:
-            print("Unable to load key", e)
-            sys.exit(1)
+        ecc_key = ECC.import_key(open("./test/private.pem", 'rt').read(), passphrase="hay")
 
     ecc_public_key = ecc_key.public_key()
     if ecc_key.has_private():

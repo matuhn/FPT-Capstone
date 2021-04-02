@@ -9,6 +9,19 @@ import json
 import shutil
 
 
+def get_size(path):
+    total_size = 0
+    for dirpath, dirnames, filenames in os.walk(path):
+        for f in filenames:
+            print(f)
+            fp = os.path.join(dirpath, f)
+            # skip if it is symbolic link
+            if not os.path.islink(fp):
+                total_size += os.path.getsize(fp)
+
+    return total_size
+
+
 def make_unique(string):
     ident = uuid4().__str__()[:8]
     return f"{ident}-{string}"
@@ -52,6 +65,11 @@ def init_database():
                     "DIR TEXT NOT NULL, FILENAME TEXT NOT NULL UNIQUE, " \
                     "KEY TEXT NOT NULL, NONCE TEXT NOT NULL)"
             conn.cursor().execute(query)
+            query = "CREATE TABLE IF NOT EXISTS Stats " \
+                    "(ID INTEGER PRIMARY KEY AUTOINCREMENT, " \
+                    "DIR TEXT NOT NULL, FILENAME TEXT NOT NULL UNIQUE, " \
+                    "TIMES TEXT NOT NULL)"
+            conn.cursor().execute(query)
             conn.commit()
     except Exception as ex:
         print(ex)
@@ -67,16 +85,18 @@ def parameter_policy(parameter, regex):
         print(ex)
 
 
-def hash_password(password):
+def md5_hash(password):
+    return hashlib.md5(password.encode()).hexdigest()
+
+def hash_with_salt(password):
     return hashlib.md5((password + config.MD5_SALT).encode()).hexdigest()
 
-
 def gen_file_name(name, username, pdir):
-    parent_dir = os.path.join(config.UPLOAD_DIR, hash_password(username))
+    parent_dir = os.path.join(config.UPLOAD_DIR, md5_hash(username))
     parent_dir = os.path.join(parent_dir, pdir)
     init_directory(parent_dir)
     new1_name = make_unique(name)
-    directory = hash_password(username)
+    directory = md5_hash(username)
     new_name = (pdir + "/" if pdir != "" else "") + new1_name
     return os.path.join(parent_dir, new1_name), directory, new_name
 
