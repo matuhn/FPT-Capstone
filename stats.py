@@ -1,6 +1,7 @@
 import function
 import json
 
+
 def add_times(parent_dir, filename, times):
     try:
         query = "INSERT INTO Stats(DIR, FILENAME, TIMES) " \
@@ -24,7 +25,7 @@ def check_times(parent_dir):
 
 def check_times_a_file(parent_dir, filename):
     try:
-        query = "SELECT TIMES FROM Stats WHERE DIR = :dir AND FILENAME = :filename"
+        query = "SELECT TIMES FROM Stats WHERE DIR = :dir AND FILENAME = :filename LIMIT 0,10 ORDER BY TIMES"
         conn = function.get_connection()
         c = conn.cursor().execute(query, {'dir': parent_dir, 'filename': filename})
         for row in c:
@@ -63,6 +64,7 @@ def edit_file_name(parent_dir, filename, new_name):
         conn.commit()
     except Exception as ex:
         print(ex)
+
 
 def get_stats(parent_dir):
     list_stats = check_times(parent_dir)
