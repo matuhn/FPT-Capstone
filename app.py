@@ -274,7 +274,7 @@ def get_stats():
 
 if __name__ == '__main__':
     dev = 1
-
+    print("dev"+dev)
     if dev != 1:
         if len(sys.argv) < 2:
             print("Unable to load key")
@@ -293,8 +293,7 @@ if __name__ == '__main__':
                 print("Unable to load key", e)
                 sys.exit(1)
     else:
-
-    ecc_key = ECC.import_key(open("test/private.pem", 'rt').read(), passphrase="hay")
+        ecc_key = ECC.import_key(open("test/private.pem", 'rt').read(), passphrase="hay")
     ecc_public_key = ecc_key.public_key()
     if ecc_key.has_private():
         ecc_private_key = ecc_key
