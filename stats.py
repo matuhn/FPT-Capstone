@@ -1,6 +1,6 @@
 import function
 import json
-
+import os
 
 def add_times(parent_dir, filename, times):
     try:
@@ -32,6 +32,17 @@ def check_times_a_file(parent_dir, filename):
             if row is not None:
                 return row[0]
         return "Not existed"
+    except Exception as ex:
+        print(ex)
+
+
+def sum_shared_file(username):
+    try:
+        query = "SELECT COUNT(FILENAME) FROM FileShare WHERE SHARE LIKE '%" + username + "%' AND DIR != '" + function.md5_hash(username) + "'"
+        conn = function.get_connection()
+        c = conn.cursor().execute(query)
+        for row in c:
+            return row
     except Exception as ex:
         print(ex)
 
@@ -78,3 +89,9 @@ def get_stats(parent_dir):
 def download(parent_dir, filename):
     times = str(int(check_times_a_file(parent_dir, filename)) + 1)
     update_times(parent_dir, filename, times)
+
+
+def sum_file(path):
+    return sum([len(files) for r, d, files in os.walk(path)])
+
+

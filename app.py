@@ -272,6 +272,26 @@ def get_stats():
         return flask.jsonify({"code": 500, "result": "Something wrong"})
 
 
+@app.route('/api/getSumOwn', methods=['GET', 'POST'])
+def get_sum_own():
+    try:
+        username = function.md5_hash(flask.session['USERNAME'])
+        path = function.make_file_path(username)
+        return flask.jsonify({"code": 200, "result": {"stats": stats.sum_file(path)}})
+    except KeyError:
+        return flask.jsonify({"code": 500, "result": "Something wrong"})
+
+
+@app.route('/api/getSumShared', methods=['GET', 'POST'])
+def get_sum_share():
+    try:
+        username = flask.session['USERNAME']
+        print(username)
+        return flask.jsonify({"code": 200, "result": {"stats": stats.sum_shared_file(username)}})
+    except KeyError:
+        return flask.jsonify({"code": 500, "result": "Something wrong"})
+
+
 if __name__ == '__main__':
     dev = 1
     if dev != 1:

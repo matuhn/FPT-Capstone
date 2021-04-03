@@ -81,6 +81,7 @@ def delete_file(parent_dir, filename):
     except Exception as ex:
         print(ex)
 
+
 def revoke_permission_of_list_username(username, parent_dir, filename):
     try:
         user_list = username.replace(" ", "").split("|")
