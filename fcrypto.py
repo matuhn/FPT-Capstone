@@ -6,7 +6,7 @@ import os
 import hashlib
 import function
 import config
-#pycryptodome
+
 
 def add_file(parent_dir, filename, key, nonce):
     try:

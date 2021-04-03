@@ -13,12 +13,14 @@ import mimetypes
 import stats
 
 
+global ecc_private_key
+global ecc_public_key
+
+
 app = flask.Flask(__name__)
 app.secret_key = config.SECRET_KEY
 CORS(app, supports_credentials=True)
 
-global ecc_private_key
-global ecc_public_key
 
 @app.route('/api/install')
 def index():
@@ -291,8 +293,8 @@ if __name__ == '__main__':
                 print("Unable to load key", e)
                 sys.exit(1)
     else:
-        ecc_key = ECC.import_key(open("./test/private.pem", 'rt').read(), passphrase="hay")
 
+    ecc_key = ECC.import_key(open("test/private.pem", 'rt').read(), passphrase="hay")
     ecc_public_key = ecc_key.public_key()
     if ecc_key.has_private():
         ecc_private_key = ecc_key
