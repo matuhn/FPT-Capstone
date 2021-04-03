@@ -86,6 +86,7 @@ def register(username, email, fullname, password):
                 if check_username_duplicate(username) != "Duplicate":
                     if check_email_duplicate(email, username) != "Duplicate":
                         insert_user(username, email, fullname, function.hash_with_salt(password))
+                        function.init_directory(function.make_file_path(function.md5_hash(username)))
                         result = {"code": 200, "result": "Created user"}
                     else:
                         result = {"code": 500, "result": "Email Duplicate"}

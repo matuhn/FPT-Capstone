@@ -88,8 +88,10 @@ def parameter_policy(parameter, regex):
 def md5_hash(password):
     return hashlib.md5(password.encode()).hexdigest()
 
+
 def hash_with_salt(password):
     return hashlib.md5((password + config.MD5_SALT).encode()).hexdigest()
+
 
 def gen_file_name(name, username, pdir):
     parent_dir = os.path.join(config.UPLOAD_DIR, md5_hash(username))
