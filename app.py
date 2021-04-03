@@ -274,7 +274,6 @@ def get_stats():
 
 if __name__ == '__main__':
     dev = 1
-    print("dev"+dev)
     if dev != 1:
         if len(sys.argv) < 2:
             print("Unable to load key")
