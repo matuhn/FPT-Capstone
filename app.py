@@ -286,7 +286,6 @@ def get_sum_own():
 def get_sum_share():
     try:
         username = flask.session['USERNAME']
-        print(username)
         return flask.jsonify({"code": 200, "result": {"stats": stats.sum_shared_file(username)}})
     except KeyError:
         return flask.jsonify({"code": 500, "result": "Something wrong"})
