@@ -68,11 +68,11 @@ def select_user(username_or_email):
         print(ex)
 
 
-def update_user(username, email, fullname, password):
+def update_user(username, email, fullname):
     try:
-        query = "UPDATE Users SET EMAIL = :email, FULLNAME = :fullname, PASSWORD = :password WHERE USERNAME = :username"
+        query = "UPDATE Users SET EMAIL = :email, FULLNAME = :fullname, WHERE USERNAME = :username"
         conn = function.get_connection()
-        c = conn.cursor().execute(query, {'username': username, 'email': email, 'fullname': fullname, 'password': password})
+        c = conn.cursor().execute(query, {'username': username, 'email': email, 'fullname': fullname})
         conn.commit()
         return "Updated"
     except Exception as ex:
@@ -116,15 +116,12 @@ def login(username_or_email, password):
     return result
 
 
-def edit(username, email, fullname, password):
+def edit(username, email, fullname):
     try:
         if (function.parameter_policy(email, config.EMAIL_POLICY)) == "Match":
             if check_email_duplicate(email, username) != "Duplicate":
-                if password != "":
-                    update_user(username, email, fullname, function.md5_hash(password))
-                    result = {"code": 200, "result": "Updated user"}
-                else:
-                    result = {"code": 500, "result": "Password is not null"}
+                update_user(username, email, fullname)
+                result = {"code": 200, "result": "Updated user"}
             else:
                 result = {"code": 500, "result": "Email Duplicate"}
         else:

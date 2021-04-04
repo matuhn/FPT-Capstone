@@ -85,7 +85,7 @@ def get_user_info():
 @app.route('/api/editUserInfo', methods=['GET', 'POST'])
 def edit_user_info():
     if flask.request.method == "GET":
-        text = "POST email, fullname, password"
+        text = "POST email, fullname"
         return text
     elif flask.request.method == "POST":
         try:
@@ -94,8 +94,7 @@ def edit_user_info():
             return flask.jsonify({"code": 500, "result": "Please login before doing this"})
         email = flask.request.form.get("email")
         fullname = flask.request.form.get("fullname")
-        password = flask.request.form.get("password")
-        result = user.edit(username, email, fullname, password)
+        result = user.edit(username, email, fullname)
         result = flask.jsonify(result)
 
         return result
