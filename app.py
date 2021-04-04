@@ -133,7 +133,7 @@ def create_dir():
             sub_dir = "/".join(temp)
             username = function.md5_hash(flask.session['USERNAME'])
             parent_dir = username
-            share.add_permission(parent_dir, sub_dir, "|")
+            # share.add_permission(parent_dir, sub_dir, "|")
             function.init_directory(os.path.join(os.path.join(config.UPLOAD_DIR, parent_dir), sub_dir))
             return flask.jsonify({"code": 200, "result": "Created"})
     except Exception as e:
@@ -154,7 +154,7 @@ def download_file():
             stats.download(parent_dir, name)
             #return flask.send_from_directory(config.DOWNLOAD_DIR, name)
             mime = mimetypes.guess_type(path)[0]
-            return flask.Response(content, mimetype=mime, headers={"Content-disposition":"attachment; filename="+name+""})
+            return flask.Response(content, mimetype=mime, headers={"Content-disposition": "attachment; filename=" + name})
         else:
             return flask.jsonify({"code": 500, "result": "No Permission"})
     except Exception as e:
@@ -169,12 +169,10 @@ def list_file():
             parent_dir = flask.request.form.get("dir")
             username = function.md5_hash(flask.session['USERNAME'])
             if parent_dir != "" and not parent_dir.startswith("\\") and not parent_dir.startswith("/"):
-                print("dir "+parent_dir)
                 path = os.path.join(function.make_file_path(username), parent_dir)
                 print(path)
                 files = function.list_file_in_directory(path, username, parent_dir)
             elif parent_dir == "":
-                print("dir " + parent_dir)
                 path = function.make_file_path(username)
                 print(path)
                 files = function.list_file_in_directory(path, username, parent_dir)

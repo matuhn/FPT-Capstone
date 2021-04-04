@@ -2,6 +2,7 @@ import function
 import json
 import os
 
+
 def add_times(parent_dir, filename, times):
     try:
         query = "INSERT INTO Stats(DIR, FILENAME, TIMES) " \
@@ -15,7 +16,7 @@ def add_times(parent_dir, filename, times):
 
 def check_times(parent_dir):
     try:
-        query = "SELECT TIMES, FILENAME FROM Stats WHERE DIR = :dir"
+        query = "SELECT TIMES, FILENAME FROM Stats WHERE DIR = :dir ORDER BY TIMES DESC LIMIT 0,10"
         conn = function.get_connection()
         c = conn.cursor().execute(query, {'dir': parent_dir})
         return c
@@ -25,7 +26,7 @@ def check_times(parent_dir):
 
 def check_times_a_file(parent_dir, filename):
     try:
-        query = "SELECT TIMES FROM Stats WHERE DIR = :dir AND FILENAME = :filename LIMIT 0,10 ORDER BY TIMES"
+        query = "SELECT TIMES FROM Stats WHERE DIR = :dir AND FILENAME = :filename"
         conn = function.get_connection()
         c = conn.cursor().execute(query, {'dir': parent_dir, 'filename': filename})
         for row in c:
@@ -78,12 +79,15 @@ def edit_file_name(parent_dir, filename, new_name):
 
 
 def get_stats(parent_dir):
-    list_stats = check_times(parent_dir)
-    stats = []
-    for row in list_stats:
-        s = {"file_name": row[1], "times": row[0]}
-        stats.append(s)
-    return json.dumps(stats)
+    try:
+        list_stats = check_times(parent_dir)
+        stats = []
+        for row in list_stats:
+            s = {"file_name": row[1], "times": row[0]}
+            stats.append(s)
+        return json.dumps(stats)
+    except Exception as e:
+        return "Not Found"
 
 
 def download(parent_dir, filename):
