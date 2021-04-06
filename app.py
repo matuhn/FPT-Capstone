@@ -127,6 +127,8 @@ def create_dir():
     try:
         if flask.request.method == 'POST':
             sub_dir = flask.request.form.get("dir")
+            if sub_dir is None:
+                sub_dir = "NONAME"
             temp = sub_dir.split("/")
             temp[-1] = function.make_unique(temp[-1])
             sub_dir = "/".join(temp)
