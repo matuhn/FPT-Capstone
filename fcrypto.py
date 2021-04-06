@@ -18,6 +18,7 @@ def add_file(parent_dir, filename, key, nonce):
     except Exception as ex:
         print(ex)
 
+
 def delete_file(parent_dir, filename):
     try:
         query = "DELETE FROM Crypto WHERE DIR = :dir AND FILENAME = :filename"
@@ -27,14 +28,22 @@ def delete_file(parent_dir, filename):
     except Exception as ex:
         print(ex)
 
-def edit_file_name(parent_dir, filename, new_name):
+
+def edit_file_name(parent_dir, filename, new_name, is_dir, old_name):
     try:
-        query = "UPDATE Crypto SET FILENAME = :new_name WHERE DIR = :dir AND FILENAME = :filename"
-        conn = function.get_connection()
-        conn.cursor().execute(query, {'new_name': new_name, 'filename': filename, 'dir': parent_dir})
+        if is_dir:
+            query = "UPDATE Crypto SET FILENAME = REPLACE(FILENAME, :old_name, :new_name) " \
+                    "WHERE DIR = :dir AND FILENAME LIKE '%" + old_name + "%'"
+            conn = function.get_connection()
+            conn.cursor().execute(query, {'new_name': new_name.split("/")[-1], 'dir': parent_dir, 'old_name': old_name})
+        else:
+            query = "UPDATE Crypto SET FILENAME = :new_name WHERE DIR = :dir AND FILENAME = :filename"
+            conn = function.get_connection()
+            conn.cursor().execute(query, {'new_name': new_name, 'filename': filename, 'dir': parent_dir})
         conn.commit()
     except Exception as ex:
         print(ex)
+
 
 def get_key_and_nonce(parent_dir, filename):
     try:
@@ -48,6 +57,7 @@ def get_key_and_nonce(parent_dir, filename):
     except Exception as ex:
         print(ex)
 
+
 def aes_encrypt(plain_text):
     key = get_random_bytes(32)
     cipher = AES.new(key, AES.MODE_CTR)
@@ -55,15 +65,18 @@ def aes_encrypt(plain_text):
     cipher_text = cipher.encrypt(plain_text)
     return cipher_text, key, nonce
 
+
 def aes_decrypt(cipher_text, key, nonce):
     cipher = AES.new(key, AES.MODE_CTR, nonce=nonce)
     plain_text = cipher.decrypt(cipher_text)
     return plain_text
 
+
 def ecc_point_to_256_bit_key(point):
     sha = hashlib.sha256(point.x.to_bytes())
     sha.update(point.y.to_bytes())
     return sha.digest()
+
 
 def ecc_encrypt(plain_text, ecc_public_key):
     ecc_shared_key = ECC.generate(curve='P-256')
@@ -73,6 +86,7 @@ def ecc_encrypt(plain_text, ecc_public_key):
     cipher_text = cipher.encrypt(plain_text)
     return cipher_text, ecc_shared_key.public_key().export_key(format='PEM'), nonce
 
+
 def ecc_decrypt(cipher_text, ecc_private_key, shared_key, nonce):
     ecc_shared_key = ECC.import_key(shared_key)
     aes_key = ecc_point_to_256_bit_key(ecc_private_key.d * ecc_shared_key.pointQ)
@@ -80,12 +94,14 @@ def ecc_decrypt(cipher_text, ecc_private_key, shared_key, nonce):
     plain_text = cipher.decrypt(cipher_text)
     return plain_text
 
+
 def encrypt_file(parent_dir, filename, content, ecc_public_key):
     path = os.path.join(function.make_file_path(parent_dir), filename)
     cipher_text, key, nonce = ecc_encrypt(content, ecc_public_key)
     with open(path,'wb') as f:
         f.write(cipher_text)
     add_file(parent_dir, filename, key, nonce)
+
 
 def decrypt_file(parent_dir, filename, key, nonce, ecc_private_key):
     path = os.path.join(function.make_file_path(parent_dir), filename)

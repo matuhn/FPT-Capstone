@@ -171,3 +171,8 @@ def rename_file(parent_dir, old_name, new_name):
     old_path = os.path.join(make_file_path(parent_dir), old_name)
     new_path = os.path.join(make_file_path(parent_dir), new_name)
     os.rename(old_path, new_path)
+    if os.path.isdir(new_path):
+        return 1
+    else:
+        return 0
+

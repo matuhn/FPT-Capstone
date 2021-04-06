@@ -68,11 +68,17 @@ def delete_file(parent_dir, filename):
         print(ex)
 
 
-def edit_file_name(parent_dir, filename, new_name):
+def edit_file_name(parent_dir, filename, new_name, is_dir, old_name):
     try:
-        query = "UPDATE Stats SET FILENAME = :new_name WHERE DIR = :dir AND FILENAME = :filename"
-        conn = function.get_connection()
-        conn.cursor().execute(query, {'new_name': new_name, 'filename': filename, 'dir': parent_dir})
+        if is_dir:
+            query = "UPDATE Stats SET FILENAME = REPLACE(FILENAME, :old_name, :new_name) " \
+                    "WHERE DIR = :dir AND FILENAME LIKE '%" + old_name + "%'"
+            conn = function.get_connection()
+            conn.cursor().execute(query, {'new_name': new_name.split("/")[-1], 'dir': parent_dir, 'old_name': old_name})
+        else:
+            query = "UPDATE Stats SET FILENAME = :new_name WHERE DIR = :dir AND FILENAME = :filename"
+            conn = function.get_connection()
+            conn.cursor().execute(query, {'new_name': new_name, 'filename': filename, 'dir': parent_dir})
         conn.commit()
     except Exception as ex:
         print(ex)

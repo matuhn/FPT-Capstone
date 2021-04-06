@@ -205,10 +205,14 @@ def edit_file():
             #rename file
             elif action == "rename":
                 new_name = function.make_unique(flask.request.form.get("new_name"))
-                function.rename_file(parent_dir, name, new_name)
-                share.edit_file_name(parent_dir, name, new_name)
-                fcrypto.edit_file_name(parent_dir, name, new_name)
-                stats.edit_file_name(parent_dir, name, new_name)
+                old_name = name.split("/")[-1]
+                new_name = name.replace(old_name, new_name)
+
+                is_dir = function.rename_file(parent_dir, name, new_name)
+
+                share.edit_file_name(parent_dir, name, new_name, is_dir, old_name)
+                fcrypto.edit_file_name(parent_dir, name, new_name, is_dir, old_name)
+                stats.edit_file_name(parent_dir, name, new_name, is_dir, old_name)
                 return flask.jsonify({"code": 200, "result": "Renamed"})
             #share_file
             elif action == "share":
