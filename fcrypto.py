@@ -1,11 +1,8 @@
 from Crypto.Cipher import AES
 from Crypto.PublicKey import ECC
-from Crypto.Random import get_random_bytes
-from Crypto.Math.Numbers import Integer
 import os
 import hashlib
 import function
-import config
 
 
 def add_file(parent_dir, filename, key, nonce):
@@ -58,12 +55,11 @@ def get_key_and_nonce(parent_dir, filename):
         print(ex)
 
 
-def aes_encrypt(plain_text):
-    key = get_random_bytes(32)
+def aes_encrypt(plain_text, key):
     cipher = AES.new(key, AES.MODE_CTR)
     nonce = cipher.nonce
     cipher_text = cipher.encrypt(plain_text)
-    return cipher_text, key, nonce
+    return cipher_text, nonce
 
 
 def aes_decrypt(cipher_text, key, nonce):
@@ -98,7 +94,7 @@ def ecc_decrypt(cipher_text, ecc_private_key, shared_key, nonce):
 def encrypt_file(parent_dir, filename, content, ecc_public_key):
     path = os.path.join(function.make_file_path(parent_dir), filename)
     cipher_text, key, nonce = ecc_encrypt(content, ecc_public_key)
-    with open(path,'wb') as f:
+    with open(path, 'wb') as f:
         f.write(cipher_text)
     add_file(parent_dir, filename, key, nonce)
 

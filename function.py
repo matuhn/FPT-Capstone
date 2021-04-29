@@ -7,7 +7,8 @@ import os
 from uuid import uuid4
 import json
 import shutil
-
+import base64
+import urllib
 
 def get_size(path):
     total_size = 0
@@ -52,7 +53,7 @@ def init_database():
             query = "CREATE TABLE IF NOT EXISTS Users " \
                     "(ID INTEGER PRIMARY KEY AUTOINCREMENT, " \
                     "USERNAME TEXT NOT NULL UNIQUE, EMAIL TEXT NOT NULL UNIQUE, " \
-                    "FULLNAME TEXT NOT NULL, PASSWORD TEXT NOT NULL)"
+                    "FULLNAME TEXT NOT NULL, PASSWORD TEXT NOT NULL, CONFIRM INTEGER NOT NULL)"
             conn = get_connection()
             conn.cursor().execute(query)
             query = "CREATE TABLE IF NOT EXISTS FileShare " \
@@ -176,3 +177,12 @@ def rename_file(parent_dir, old_name, new_name):
     else:
         return 0
 
+
+def b64encode(message):
+    message = urllib.parse.quote(base64.b64encode(message).decode("utf-8"))
+    return message
+
+
+def b64decode(base64_message):
+    message = base64.b64decode(urllib.parse.unquote(base64_message))
+    return message

@@ -131,3 +131,17 @@ getStats
 <form method="GET" action="http://127.0.0.1:5000/api/getStats">
     <input type="submit"/>
 </form>
+
+changePw
+<form method="POST" action="http://127.0.0.1:5000/api/changePassword">
+    <input type="text" name="old_password" />
+    <input type="text" name="new_password" />
+    <input type="submit"/>
+</form>
+
+resetPw
+<form method="POST" action="http://127.0.0.1:5000/api/auth/resetPass">
+    <input type="text" name="username_or_email" />
+    <input type="text" name="new_password" />
+    <input type="submit"/>
+</form>

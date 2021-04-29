@@ -11,6 +11,7 @@ import share
 import fcrypto
 import mimetypes
 import stats
+from flask_mail import Mail, Message
 
 
 global ecc_private_key
@@ -18,8 +19,16 @@ global ecc_public_key
 
 
 app = flask.Flask(__name__)
-app.secret_key = config.SECRET_KEY
+app.secret_key = config.APP_KEY
 CORS(app, supports_credentials=True)
+mail = Mail(app)
+app.config['MAIL_SERVER'] = config.MAIL_SERVER
+app.config['MAIL_PORT'] = config.MAIL_PORT
+app.config['MAIL_USERNAME'] = config.MAIL_USERNAME
+app.config['MAIL_PASSWORD'] = config.MAIL_PASSWORD
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
+mail = Mail(app)
 
 
 @app.route('/api/install')
@@ -29,6 +38,16 @@ def index():
     function.init_directory(config.UPLOAD_DIR)
     text += "\nInit Upload Directory"
     return text
+
+
+def send_email(subject, receiver, content):
+    try:
+        msg = Message(subject, sender='fenclown.team@gmail.com', recipients=[receiver])
+        msg.body = content
+        mail.send(msg)
+        print("SENT")
+    except Exception as e:
+        print(e)
 
 
 @app.route('/api/auth/register', methods=['GET', 'POST'])
@@ -41,8 +60,19 @@ def register():
         email = flask.request.form.get("email")
         fullname = flask.request.form.get("fullname")
         password = flask.request.form.get("password")
-        result = user.register(username, email, fullname, password)
+        result = user.register(username, email, fullname, password, 0)
+        content = user.gen_link_confirm(username)
+        send_email("User Confirmation", email, content)
         result = flask.jsonify(result)
+        return result
+
+
+@app.route('/api/auth/confirm', methods=['GET', 'POST'])
+def confirm():
+    if flask.request.method == "GET":
+        token = flask.request.args.get("token")
+        nonce = flask.request.args.get("nonce")
+        result = user.confirm(token, nonce)
         return result
 
 
@@ -67,6 +97,28 @@ def login():
 def logout():
     flask.session.clear()
     return flask.jsonify({"code": 200, "result": "Logout successfully"})
+
+
+@app.route('/api/auth/resetPass', methods=['GET', 'POST'])
+def reset():
+    if flask.request.method == "POST":
+        username_or_email = flask.request.form.get("username_or_email")
+        new_password = flask.request.form.get("new_password")
+        email = user.select_user(username_or_email)[2]
+        username = user.select_user(username_or_email)[1]
+        content, result = user.gen_reset_link(username, new_password)
+        if content != "":
+            send_email("Reset Password", email, content)
+        return result
+
+
+@app.route('/api/auth/newPass', methods=['GET', 'POST'])
+def new_pass():
+    if flask.request.method == "GET":
+        token = flask.request.args.get("token")
+        nonce = flask.request.args.get("nonce")
+        result = user.reset(token, nonce)
+        return result
 
 
 @app.route('/api/auth/getUserInfo', methods=['GET', 'POST'])
@@ -96,6 +148,23 @@ def edit_user_info():
         fullname = flask.request.form.get("fullname")
         result = user.edit(username, email, fullname)
         result = flask.jsonify(result)
+
+        return result
+
+
+@app.route('/api/changePassword', methods=['GET', 'POST'])
+def change_pw():
+    if flask.request.method == "GET":
+        text = "POST old, new"
+        return text
+    elif flask.request.method == "POST":
+        try:
+            username = flask.session['USERNAME']
+        except KeyError:
+            return flask.jsonify({"code": 500, "result": "Please login before doing this"})
+        old_password = function.hash_with_salt(flask.request.form.get("old_password"))
+        new_password = function.hash_with_salt(flask.request.form.get("new_password"))
+        result = user.change_pass(username, old_password, new_password)
 
         return result
 
