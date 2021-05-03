@@ -144,13 +144,16 @@ def register(username, email, fullname, password, confirm):
 def login(username_or_email, password):
     try:
         result = select_user(username_or_email)[3]
-        if int(get_confirm(username_or_email)[0]) == 1:
-            if function.hash_with_salt(password) == result:
-                result = {"code": 200, "result": "Login successfully"}
+        try:
+            if int(get_confirm(username_or_email)[0]) == 1:
+                if function.hash_with_salt(password) == result:
+                    result = {"code": 200, "result": "Login successfully"}
+                else:
+                    result = {"code": 500, "result": "Check your account and login again"}
             else:
-                result = {"code": 500, "result": "Check your account and login again"}
-        else:
-            result = {"code": 500, "result": "Not yet confirm"}
+                result = {"code": 500, "result": "Not yet confirm"}
+        except Exception as ex:
+            result = {"code": 500, "result": "Check your account and login again"}
         return result
     except Exception as ex:
         print(ex)

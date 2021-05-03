@@ -1468,54 +1468,59 @@
       <DataType>TEXT|0s</DataType>
       <NotNull>1</NotNull>
     </column>
-    <index id="522" parent="173" name="sqlite_autoindex_Users_1">
+    <column id="522" parent="173" name="CONFIRM">
+      <Position>6</Position>
+      <DataType>INTEGER|0s</DataType>
+      <NotNull>1</NotNull>
+    </column>
+    <index id="523" parent="173" name="sqlite_autoindex_Users_1">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>USERNAME</ColNames>
       <ColumnCollations></ColumnCollations>
       <Unique>1</Unique>
     </index>
-    <index id="523" parent="173" name="sqlite_autoindex_Users_2">
+    <index id="524" parent="173" name="sqlite_autoindex_Users_2">
       <NameSurrogate>1</NameSurrogate>
       <ColNames>EMAIL</ColNames>
       <ColumnCollations></ColumnCollations>
       <Unique>1</Unique>
     </index>
-    <key id="524" parent="173">
+    <key id="525" parent="173">
       <ColNames>ID</ColNames>
       <Primary>1</Primary>
     </key>
-    <key id="525" parent="173">
+    <key id="526" parent="173">
       <ColNames>USERNAME</ColNames>
       <UnderlyingIndexName>sqlite_autoindex_Users_1</UnderlyingIndexName>
     </key>
-    <key id="526" parent="173">
+    <key id="527" parent="173">
       <ColNames>EMAIL</ColNames>
       <UnderlyingIndexName>sqlite_autoindex_Users_2</UnderlyingIndexName>
     </key>
-    <column id="527" parent="174" name="type">
+    <column id="528" parent="174" name="type">
       <Position>1</Position>
       <DataType>text|0s</DataType>
     </column>
-    <column id="528" parent="174" name="name">
+    <column id="529" parent="174" name="name">
       <Position>2</Position>
       <DataType>text|0s</DataType>
     </column>
-    <column id="529" parent="174" name="tbl_name">
+    <column id="530" parent="174" name="tbl_name">
       <Position>3</Position>
       <DataType>text|0s</DataType>
     </column>
-    <column id="530" parent="174" name="rootpage">
+    <column id="531" parent="174" name="rootpage">
       <Position>4</Position>
       <DataType>int|0s</DataType>
     </column>
-    <column id="531" parent="174" name="sql">
+    <column id="532" parent="174" name="sql">
       <Position>5</Position>
       <DataType>text|0s</DataType>
     </column>
-    <column id="532" parent="175" name="name">
+    <column id="533" parent="175" name="name">
       <Position>1</Position>
     </column>
-    <column id="533" parent="175" name="seq">
+    <column id="534" parent="175" name="seq">
       <Position>2</Position>
     </column>
   </database-model>
