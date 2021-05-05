@@ -61,8 +61,9 @@ def register():
         fullname = flask.request.form.get("fullname")
         password = flask.request.form.get("password")
         result = user.register(username, email, fullname, password, 0)
-        content = user.gen_link_confirm(username)
-        send_email("User Confirmation", email, content)
+        if "Created" in result:
+            content = user.gen_link_confirm(username)
+            send_email("User Confirmation", email, content)
         result = flask.jsonify(result)
         return result
 
