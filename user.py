@@ -26,8 +26,8 @@ def check_username_duplicate(username):
         c = conn.cursor().execute(query, {'username': username})
         for row in c:
             if row is not None:
-                return "Duplicate"
-        return "None"
+                return 1
+        return 0
     except Exception as ex:
         print(ex)
 
@@ -39,8 +39,8 @@ def check_email_duplicate(email, username):
         c = conn.cursor().execute(query, {'email': email, 'username': username})
         for row in c:
             if row is not None:
-                return "Duplicate"
-        return "None"
+                return 1
+        return 0
     except Exception as ex:
         print(ex)
 
@@ -66,7 +66,7 @@ def select_user(username_or_email):
         for row in c:
             if row is not None:
                 return row
-        return "Not existed"
+        return 0
     except Exception as ex:
         print(ex)
 
@@ -122,8 +122,8 @@ def register(username, email, fullname, password, confirm):
     try:
         if function.parameter_policy(username, config.USERNAME_POLICY) == "Match":
             if (function.parameter_policy(email, config.EMAIL_POLICY)) == "Match":
-                if check_username_duplicate(username) != "Duplicate":
-                    if check_email_duplicate(email, username) != "Duplicate":
+                if check_username_duplicate(username) != 1:
+                    if check_email_duplicate(email, username) != 1:
                         insert_user(username, email, fullname, function.hash_with_salt(password), confirm)
                         function.init_directory(function.make_file_path(function.md5_hash(username)))
                         result = {"code": 200, "result": "Created user. Check mail to confirm"}
@@ -164,7 +164,7 @@ def login(username_or_email, password):
 def edit(username, email, fullname):
     try:
         if (function.parameter_policy(email, config.EMAIL_POLICY)) == "Match":
-            if check_email_duplicate(email, username) != "Duplicate":
+            if check_email_duplicate(email, username) != 1:
                 update_user(username, email, fullname)
                 result = {"code": 200, "result": "Updated user"}
             else:
@@ -218,7 +218,7 @@ def confirm(token, nonce):
 def gen_reset_link(username_or_email, password):
     password = function.hash_with_salt(password)
     exist = select_user(username_or_email)
-    if exist != "Not existed":
+    if exist != 0:
         time = (datetime.datetime.now() + datetime.timedelta(minutes=10)).timestamp()
         token = username_or_email + "|" + password + "|" + str(time)
         token, nonce = fcrypto.aes_encrypt(token.encode("utf8"), config.SECRET_KEY)

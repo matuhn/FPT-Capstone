@@ -24,7 +24,7 @@ def check_permission(parent_dir, filename):
             if row is not None:
                 print(row[0])
                 return row[0]
-        return "Not existed"
+        return 0
     except Exception as ex:
         print(ex)
 
@@ -55,7 +55,7 @@ def add_permission_of_list_username(username, parent_dir, filename):
         share = check_permission(parent_dir, filename)
         for u_name in user_list:
             if ("|" + u_name + "|") not in share:
-                if user.select_user(u_name) != "Not existed":
+                if user.select_user(u_name) != 0:
                     share += (u_name + "|")
         update_permission(parent_dir, filename, share)
         return {"code": 200, "result": "Shared"}
@@ -95,7 +95,7 @@ def revoke_permission_of_list_username(username, parent_dir, filename):
         share = check_permission(parent_dir, filename)
         for u_name in user_list:
             if ("|" + u_name + "|") in share:
-                if user.select_user(u_name) != "Not existed":
+                if user.select_user(u_name) != 0:
                     u_name = "|" + u_name + "|"
                     share = share.replace(u_name, "|")
         update_permission(parent_dir, filename, share)

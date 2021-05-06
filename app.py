@@ -105,15 +105,18 @@ def logout():
 
 @app.route('/api/auth/resetPass', methods=['GET', 'POST'])
 def reset():
-    if flask.request.method == "POST":
-        username_or_email = flask.request.form.get("username_or_email")
-        new_password = flask.request.form.get("new_password")
-        email = user.select_user(username_or_email)[2]
-        username = user.select_user(username_or_email)[1]
-        content, result = user.gen_reset_link(username, new_password)
-        if content != "":
-            send_email("Reset Password", email, content)
-        return result
+    try:
+        if flask.request.method == "POST":
+            username_or_email = flask.request.form.get("username_or_email")
+            new_password = flask.request.form.get("new_password")
+            email = user.select_user(username_or_email)[2]
+            username = user.select_user(username_or_email)[1]
+            content, result = user.gen_reset_link(username, new_password)
+            if content != "":
+                send_email("Reset Password", email, content)
+            return result
+    except:
+        return flask.jsonify({"code": 500, "result": "Something wrong"})
 
 
 @app.route('/api/auth/newPass', methods=['GET', 'POST'])
