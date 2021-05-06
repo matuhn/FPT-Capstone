@@ -11,6 +11,7 @@ def add_permission(parent_dir, filename, share):
                 "VALUES (:dir, :filename, :share, :sign)"
         conn = function.get_connection()
         message = (parent_dir + filename + share).encode('utf-8')
+        print('add permission', message)
         sign = fcrypto.ecc_sign(message)
         conn.cursor().execute(query, {'dir': parent_dir, 'filename': filename, 'share': share, 'sign': sign})
         conn.commit()
@@ -25,9 +26,9 @@ def get_sign(parent_dir, filename):
         c = conn.cursor().execute(query, {'dir': parent_dir, 'filename': filename})
         for row in c:
             if row is not None:
-                print(row[0])
+                print('get sign', row[0])
                 return row[0]
-        return 0
+        return ""
     except Exception as ex:
         print(ex)
 
@@ -39,13 +40,14 @@ def check_permission(parent_dir, filename):
         c = conn.cursor().execute(query, {'dir': parent_dir, 'filename': filename})
         for row in c:
             if row is not None:
-                print(row[0])
+                print('check permission row 0', row[0])
                 share = row[0]
                 sign = get_sign(parent_dir, filename)
                 message = (parent_dir + filename + share).encode('utf-8')
-                fcrypto.verify(message, sign)
+                print('check permission', message)
+                fcrypto.ecc_verify(message, sign)
                 return row[0]
-        return 0
+        return ""
     except ValueError:
         print("Invalid signature", parent_dir + filename)
     except Exception as ex:
@@ -54,11 +56,15 @@ def check_permission(parent_dir, filename):
 
 def update_permission(parent_dir, filename, share):
     try:
+        print('update permission share', share)
         check_permission(parent_dir, filename)
         message = (parent_dir + filename + share).encode('utf-8')
+        print('update permission message', message)
         sign = fcrypto.ecc_sign(message)
-        query = "UPDATE FileShare SET SHARE = :share AND SIGN = :sign WHERE DIR = :dir AND FILENAME = :filename"
+        print('before before exe', share)
+        query = "UPDATE FileShare SET SHARE = :share, SIGN = :sign WHERE DIR = :dir AND FILENAME = :filename"
         conn = function.get_connection()
+        print('before exe', share)
         conn.cursor().execute(query, {'dir': parent_dir, 'filename': filename, 'share': share, 'sign': sign})
         conn.commit()
     except Exception as ex:

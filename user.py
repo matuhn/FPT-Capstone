@@ -218,7 +218,7 @@ def confirm(token, nonce):
 def gen_reset_link(username_or_email, password):
     password = function.hash_with_salt(password)
     exist = select_user(username_or_email)
-    if exist != 0:
+    if exist != "":
         time = (datetime.datetime.now() + datetime.timedelta(minutes=10)).timestamp()
         token = username_or_email + "|" + password + "|" + str(time)
         token, nonce = fcrypto.aes_encrypt(token.encode("utf8"), config.SECRET_KEY)
