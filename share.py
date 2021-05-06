@@ -18,9 +18,9 @@ def add_permission(parent_dir, filename, share):
         print(ex)
 
 
-def check_permission(parent_dir, filename):
+def get_sign(parent_dir, filename):
     try:
-        query = "SELECT SHARE FROM FileShare WHERE DIR = :dir AND FILENAME = :filename"
+        query = "SELECT SIGN FROM FileShare WHERE DIR = :dir AND FILENAME = :filename"
         conn = function.get_connection()
         c = conn.cursor().execute(query, {'dir': parent_dir, 'filename': filename})
         for row in c:
@@ -31,12 +31,35 @@ def check_permission(parent_dir, filename):
     except Exception as ex:
         print(ex)
 
+        
+def check_permission(parent_dir, filename):
+    try:
+        query = "SELECT SHARE FROM FileShare WHERE DIR = :dir AND FILENAME = :filename"
+        conn = function.get_connection()
+        c = conn.cursor().execute(query, {'dir': parent_dir, 'filename': filename})
+        for row in c:
+            if row is not None:
+                print(row[0])
+                share = row[0]
+                sign = get_sign(parent_dir, filename)
+                message = (parent_dir + filename + share).encode('utf-8')
+                fcrypto.verify(message, sign)
+                return row[0]
+        return 0
+    except ValueError:
+        print("Invalid signature", parent_dir + filename)
+    except Exception as ex:
+        print(ex)
+
 
 def update_permission(parent_dir, filename, share):
     try:
-        query = "UPDATE FileShare SET SHARE = :share WHERE DIR = :dir AND FILENAME = :filename"
+        check_permission(parent_dir, filename)
+        message = (parent_dir + filename + share).encode('utf-8')
+        sign = fcrypto.ecc_sign(message)
+        query = "UPDATE FileShare SET SHARE = :share AND SIGN = :sign WHERE DIR = :dir AND FILENAME = :filename"
         conn = function.get_connection()
-        conn.cursor().execute(query, {'dir': parent_dir, 'filename': filename, 'share': share})
+        conn.cursor().execute(query, {'dir': parent_dir, 'filename': filename, 'share': share, 'sign': sign})
         conn.commit()
     except Exception as ex:
         print(ex)
