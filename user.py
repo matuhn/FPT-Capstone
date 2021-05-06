@@ -200,15 +200,18 @@ def gen_link_confirm(username):
 
 
 def confirm(token, nonce):
-    token = fcrypto.aes_decrypt(function.b64decode(token), config.SECRET_KEY, function.b64decode(nonce)).decode("utf-8").split("|")
-    username = token[0]
-    time = token[1]
-    now = datetime.datetime.now().timestamp()
-    if float(now) < float(time):
-        update_confirm(username, 1)
-        result = {"code": 200, "result": "Confirmed"}
-    else:
-        result = {"code": 500, "result": "Link Expired"}
+    try:
+        token = fcrypto.aes_decrypt(function.b64decode(token), config.SECRET_KEY, function.b64decode(nonce)).decode("utf-8").split("|")
+        username = token[0]
+        time = token[1]
+        now = datetime.datetime.now().timestamp()
+        if float(now) < float(time):
+            update_confirm(username, 1)
+            result = {"code": 200, "result": "Confirmed"}
+        else:
+            result = {"code": 500, "result": "Link Expired"}
+    except:
+        result = {"code": 500, "result": "Invalid token"}
     return result
 
 
@@ -220,7 +223,7 @@ def gen_reset_link(username_or_email, password):
         token = username_or_email + "|" + password + "|" + str(time)
         token, nonce = fcrypto.aes_encrypt(token.encode("utf8"), config.SECRET_KEY)
         link = config.DOMAIN + "/api/auth/newPass?token=" + function.b64encode(token) + "&nonce=" + function.b64encode(nonce)
-        content = "Password will be change to " + password + " if you go to " + link
+        content = "Password will be change to this encrypted password (" + password + ") if you go to " + link
         result = {"code": 200, "result": "Link sent"}
     else:
         content = ""
@@ -230,15 +233,18 @@ def gen_reset_link(username_or_email, password):
 
 
 def reset(token, nonce):
-    token = fcrypto.aes_decrypt(function.b64decode(token), config.SECRET_KEY, function.b64decode(nonce)).decode("utf-8").split("|")
-    username = token[0]
-    password = token[1]
-    time = token[2]
-    now = datetime.datetime.now().timestamp()
-    if float(now) < float(time):
-        update_pw(username, password)
-        result = {"code": 200, "result": "Password Changed"}
-    else:
-        result = {"code": 500, "result": "Link Expired"}
+    try:
+        token = fcrypto.aes_decrypt(function.b64decode(token), config.SECRET_KEY, function.b64decode(nonce)).decode("utf-8").split("|")
+        username = token[0]
+        password = token[1]
+        time = token[2]
+        now = datetime.datetime.now().timestamp()
+        if float(now) < float(time):
+            update_pw(username, password)
+            result = {"code": 200, "result": "Password Changed"}
+        else:
+            result = {"code": 500, "result": "Link Expired"}
+    except:
+        result = {"code": 500, "result": "Invalid token"}
     return result
 

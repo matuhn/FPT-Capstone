@@ -61,7 +61,7 @@ def register():
         fullname = flask.request.form.get("fullname")
         password = flask.request.form.get("password")
         result = user.register(username, email, fullname, password, 0)
-        if "Created" in result:
+        if "Created" in result['result']:
             content = user.gen_link_confirm(username)
             send_email("User Confirmation", email, content)
         result = flask.jsonify(result)
@@ -74,7 +74,10 @@ def confirm():
         token = flask.request.args.get("token")
         nonce = flask.request.args.get("nonce")
         result = user.confirm(token, nonce)
-        return result
+        if result['code'] == 200:
+            return flask.redirect(config.DOMAIN + "/#/register_confirm")
+        else:
+            return flask.redirect(config.DOMAIN + "/#/error_confirm?error=" + result['result'])
 
 
 @app.route('/api/auth/login', methods=['GET', 'POST'])
@@ -119,7 +122,10 @@ def new_pass():
         token = flask.request.args.get("token")
         nonce = flask.request.args.get("nonce")
         result = user.reset(token, nonce)
-        return result
+        if result['code'] == 200:
+            return flask.redirect(config.DOMAIN + "/#/reset_password_confirm")
+        else:
+            return flask.redirect(config.DOMAIN + "/#/error_confirm?error=" + result['result'])
 
 
 @app.route('/api/auth/getUserInfo', methods=['GET', 'POST'])
