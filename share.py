@@ -1,4 +1,5 @@
 import user
+import fcrypto
 import function
 import json
 import os
@@ -6,10 +7,12 @@ import os
 
 def add_permission(parent_dir, filename, share):
     try:
-        query = "INSERT INTO FileShare(DIR, FILENAME, SHARE) " \
-                "VALUES (:dir, :filename, :share)"
+        query = "INSERT INTO FileShare(DIR, FILENAME, SHARE, SIGN) " \
+                "VALUES (:dir, :filename, :share, :sign)"
         conn = function.get_connection()
-        conn.cursor().execute(query, {'dir': parent_dir, 'filename': filename, 'share': share})
+        message = (parent_dir + filename + share).encode('utf-8')
+        sign = fcrypto.ecc_sign(message)
+        conn.cursor().execute(query, {'dir': parent_dir, 'filename': filename, 'share': share, 'sign': sign})
         conn.commit()
     except Exception as ex:
         print(ex)

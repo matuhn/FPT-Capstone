@@ -14,10 +14,6 @@ import stats
 from flask_mail import Mail, Message
 
 
-global ecc_private_key
-global ecc_public_key
-
-
 app = flask.Flask(__name__)
 app.secret_key = config.APP_KEY
 CORS(app, supports_credentials=True)
@@ -197,7 +193,7 @@ def upload_file():
                 return flask.jsonify({"code": 500, "result": "Please login before doing this"})
             share.add_permission(directory, new_name, "|")
             stats.add_times(directory, new_name, "0")
-            fcrypto.encrypt_file(directory, new_name, content, ecc_public_key)
+            fcrypto.encrypt_file(directory, new_name, content)
             return flask.jsonify({"code": 200, "result": "dir=" + directory + "&file_name=" + new_name})
 
 
@@ -230,7 +226,7 @@ def download_file():
         permission = "|" + flask.session['USERNAME'] + "|"
         if function.md5_hash(flask.session['USERNAME']) == parent_dir or permission in share.check_permission(parent_dir, name):
             key, nonce = fcrypto.get_key_and_nonce(parent_dir, name)
-            path, content = fcrypto.decrypt_file(parent_dir, name, key, nonce, ecc_private_key)
+            path, content = fcrypto.decrypt_file(parent_dir, name, key, nonce)
             stats.download(parent_dir, name)
             #return flask.send_from_directory(config.DOWNLOAD_DIR, name)
             mime = mimetypes.guess_type(path)[0]
@@ -394,8 +390,12 @@ if __name__ == '__main__':
                 sys.exit(1)
     else:
         ecc_key = ECC.import_key(open("test/private.pem", 'rt').read(), passphrase="hay")
-    ecc_public_key = ecc_key.public_key()
     if ecc_key.has_private():
-        ecc_private_key = ecc_key
+        fcrypto.ecc_private_key = ecc_key
+        fcrypto.ecc_public_key = ecc_key.public_key()
+    else:
+        print("Private key is required.")
+        sys.exit(1)
+        
 
     app.run()

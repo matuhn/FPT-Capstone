@@ -58,8 +58,8 @@ def init_database():
             conn.cursor().execute(query)
             query = "CREATE TABLE IF NOT EXISTS FileShare " \
                     "(ID INTEGER PRIMARY KEY AUTOINCREMENT, " \
-                    "DIR TEXT NOT NULL, FILENAME TEXT NOT NULL UNIQUE, " \
-                    "SHARE TEXT NOT NULL)"
+                    "SHARE TEXT NOT NULL," \
+                    "SIGN TEXT)"
             conn.cursor().execute(query)
             query = "CREATE TABLE IF NOT EXISTS Crypto " \
                     "(ID INTEGER PRIMARY KEY AUTOINCREMENT, " \

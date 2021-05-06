@@ -1,9 +1,13 @@
 from Crypto.Cipher import AES
+from Crypto.Hash import SHA256
 from Crypto.PublicKey import ECC
+from Crypto.Signature import DSS
 import os
 import hashlib
 import function
 
+ecc_public_key = None
+ecc_private_key = None
 
 def add_file(parent_dir, filename, key, nonce):
     try:
@@ -74,7 +78,7 @@ def ecc_point_to_256_bit_key(point):
     return sha.digest()
 
 
-def ecc_encrypt(plain_text, ecc_public_key):
+def ecc_encrypt(plain_text):
     ecc_shared_key = ECC.generate(curve='P-256')
     aes_key = ecc_point_to_256_bit_key(ecc_public_key.pointQ * ecc_shared_key.d)
     cipher = AES.new(aes_key, AES.MODE_GCM)
@@ -83,27 +87,34 @@ def ecc_encrypt(plain_text, ecc_public_key):
     return cipher_text, ecc_shared_key.public_key().export_key(format='PEM'), nonce
 
 
-def ecc_decrypt(cipher_text, ecc_private_key, shared_key, nonce):
+def ecc_decrypt(cipher_text, shared_key, nonce):
     ecc_shared_key = ECC.import_key(shared_key)
     aes_key = ecc_point_to_256_bit_key(ecc_private_key.d * ecc_shared_key.pointQ)
     cipher = AES.new(aes_key, AES.MODE_GCM, nonce=nonce)
     plain_text = cipher.decrypt(cipher_text)
     return plain_text
 
+def ecc_sign(message):
+    h = SHA256.new(message)
+    return DSS.new(ecc_private_key, 'fips-186-3').sign(h)
 
-def encrypt_file(parent_dir, filename, content, ecc_public_key):
+def ecc_verify(message, sign):
+    h = SHA256.new(message)
+    return DSS.new(ecc_public_key, 'fips-186-3').verify(h, sign)
+
+def encrypt_file(parent_dir, filename, content):
     path = os.path.join(function.make_file_path(parent_dir), filename)
-    cipher_text, key, nonce = ecc_encrypt(content, ecc_public_key)
+    cipher_text, key, nonce = ecc_encrypt(content)
     with open(path, 'wb') as f:
         f.write(cipher_text)
     add_file(parent_dir, filename, key, nonce)
 
 
-def decrypt_file(parent_dir, filename, key, nonce, ecc_private_key):
+def decrypt_file(parent_dir, filename, key, nonce):
     path = os.path.join(function.make_file_path(parent_dir), filename)
     with open(path, 'rb') as f:
         data = f.read()
-    plain_text = ecc_decrypt(data, ecc_private_key, key, nonce)
+    plain_text = ecc_decrypt(data, key, nonce)
     # download_name = function.make_unique(filename)
     # download_path = os.path.join(config.DOWNLOAD_DIR, download_name)
     # with open(download_path,'wb') as f:
